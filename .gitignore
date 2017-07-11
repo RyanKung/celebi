@@ -1,0 +1,17 @@
+*.pyc
+*~
+*.pyo
+!.gitignore
+*.db
+*.tar
+*.log
+.*
+build/
+dist/
+*.egg-info/
+env
+venv
+.env
+*_flymake.py
+
+hotresource/core/config.py
