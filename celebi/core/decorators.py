@@ -13,9 +13,9 @@ def maybe_async(op: bool=True) -> MaybeCorouteine:
         return lambda x: x
 
 
-def jsonrpc(fn: Callable) -> Callable:
+def jsonrpc(fn: Callable, async: bool=True) -> Callable:
     @wraps(fn)
-    @maybe_async()
+    @maybe_async(async)
     def _(request, *args, **kwargs) -> Hashable:
         try:
             result = yield from fn(request, *args, **kwargs)
