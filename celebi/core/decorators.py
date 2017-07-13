@@ -1,25 +1,25 @@
 from typing import Callable, Hashable
 import json
+from functools import wraps
 from celebi.core.wsgi import success_response, error_response
 
 
 def jsonrpc(fn: Callable) -> Callable:
-    def _(request, *args, **kwargs) -> Hashable:
+    @wraps(fn)
+    async def _(request, *args, **kwargs) -> Hashable:
         try:
+            result = await fn(request, *args, **kwargs),
             res = dict(
-                result=fn(*args, **kwargs),
+                result=result,
                 error=None,
-                id=request.id
+                id=1
             )
-            return success_response(json.dumps(res))
+            return success_response(json.dumps(res).encode())
         except Exception as e:
             res = dict(
                 result=None,
-                error=e.regs,
-                id=request.id
+                error=e.args,
+                id=1
             )
-            return error_response(dict(
-                result=None,
-                error=str(e),
-                id=request.id
-            ))
+            return error_response(json.dumps(res).encode())
+    return _
