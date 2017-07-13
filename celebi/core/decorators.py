@@ -1,14 +1,24 @@
 from typing import Callable, Hashable
 import json
 from functools import wraps
+from asyncio import coroutine
 from celebi.core.wsgi import success_response, error_response
+from celebi.core.types import MaybeCorouteine
+
+
+def maybe_async(op: bool=True) -> MaybeCorouteine:
+    if op:
+        return coroutine
+    else:
+        return lambda x: x
 
 
 def jsonrpc(fn: Callable) -> Callable:
     @wraps(fn)
-    async def _(request, *args, **kwargs) -> Hashable:
+    @maybe_async()
+    def _(request, *args, **kwargs) -> Hashable:
         try:
-            result = await fn(request, *args, **kwargs),
+            result = yield from fn(request, *args, **kwargs)
             res = dict(
                 result=result,
                 error=None,
