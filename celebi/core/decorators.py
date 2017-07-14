@@ -1,4 +1,3 @@
-from functools import partial
 from typing import Callable, Any
 import json
 from functools import wraps
@@ -9,7 +8,7 @@ from celebi.core.types import (MaybeCorouteine, Handler,
 from asyncio import iscoroutinefunction
 
 
-__all__ = ['maybe_async', 'jsonrpc']
+__all__ = ['maybe_async', 'maybe_coro_cps', 'jsonrpc']
 
 
 def maybe_async(fn: Callable) -> Callable[..., MaybeCorouteine]:
@@ -19,19 +18,21 @@ def maybe_async(fn: Callable) -> Callable[..., MaybeCorouteine]:
         return lambda x: x
 
 
-def maybe_coro_cps(fn: Callable, context: Callable[[Maybe], Response]):
-    @wraps(fn)
-    @maybe_async(fn)
-    def _(*args, **kwargs):
-        try:
-            if iscoroutinefunction(fn):
-                result = yield from fn(*args, **kwargs)
-            else:
-                result = fn(*args, **kwargs)
-        except Exception as e:
-            result = e
-        return context(result)
-    return _
+def maybe_coro_cps(fn: Callable) -> MaybeCorouteine:
+    def parted(context: Callable[[Maybe], Response]):
+        @wraps(fn)
+        @maybe_async(fn)
+        def _(*args, **kwargs):
+            try:
+                if iscoroutinefunction(fn):
+                    result = yield from fn(*args, **kwargs)
+                else:
+                    result = fn(*args, **kwargs)
+            except Exception as e:
+                result = e
+            return context(result)
+        return _
+    return parted
 
 
 def jsonrpc(fn: Callable) -> Handler:
@@ -43,7 +44,7 @@ def jsonrpc(fn: Callable) -> Handler:
         res = dict(result=r, error=None, id=1)
         return success_response(json.dumps(res).encode())
 
-    @partial(maybe_coro_cps, fn)
+    @maybe_coro_cps(fn)
     def handler(res: Maybe[Any, Exception]) -> Response:
         if isinstance(res, Exception):
             return error(res)
