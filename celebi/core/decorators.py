@@ -1,3 +1,4 @@
+from functools import partial
 from typing import Callable, Any
 import json
 from functools import wraps
@@ -42,10 +43,11 @@ def jsonrpc(fn: Callable) -> Handler:
         res = dict(result=r, error=None, id=1)
         return success_response(json.dumps(res).encode())
 
+    @partial(maybe_coro_cps, fn)
     def handler(res: Maybe[Any, Exception]) -> Response:
         if isinstance(res, Exception):
             return error(res)
         else:
             return just(res)
 
-    return maybe_coro_cps(fn, handler)
+    return handler
