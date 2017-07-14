@@ -3,22 +3,28 @@ import json
 from functools import wraps
 from asyncio import coroutine
 from celebi.core.wsgi import success_response, error_response
-from celebi.core.types import MaybeCorouteine
+from celebi.core.types import MaybeCorouteine, Handler, Request
+from asyncio import iscoroutine, iscoroutinefunction
 
 
-def maybe_async(op: bool=True) -> MaybeCorouteine:
-    if op:
+__all__ = ['maybe_async', 'jsonrpc']
+
+
+def maybe_async(fn: Callable) -> Callable[..., MaybeCorouteine]:
+    if iscoroutinefunction(fn):
         return coroutine
     else:
         return lambda x: x
 
 
-def jsonrpc(fn: Callable, async: bool=True) -> Callable:
+def jsonrpc(fn: Callable) -> Handler:
     @wraps(fn)
-    @maybe_async(async)
-    def _(request, *args, **kwargs) -> Hashable:
+    @maybe_async(fn)
+    def _(request: Request, *args, **kwargs) -> Hashable:
         try:
-            result = yield from fn(request, *args, **kwargs)
+            result = fn(request, *args, **kwargs)
+            if iscoroutine(result):
+                result = yield from result
             res = dict(
                 result=result,
                 error=None,
