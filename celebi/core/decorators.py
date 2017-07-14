@@ -1,10 +1,11 @@
-from typing import Callable, Hashable
+from typing import Callable, Any
 import json
 from functools import wraps
 from asyncio import coroutine
 from celebi.core.wsgi import success_response, error_response
-from celebi.core.types import MaybeCorouteine, Handler, Request
-from asyncio import iscoroutine, iscoroutinefunction
+from celebi.core.types import (MaybeCorouteine, Handler,
+                               Response, Maybe)
+from asyncio import iscoroutinefunction
 
 
 __all__ = ['maybe_async', 'jsonrpc']
@@ -17,25 +18,34 @@ def maybe_async(fn: Callable) -> Callable[..., MaybeCorouteine]:
         return lambda x: x
 
 
-def jsonrpc(fn: Callable) -> Handler:
+def maybe_coro_cps(fn: Callable, context: Callable[[Maybe], Response]):
     @wraps(fn)
     @maybe_async(fn)
-    def _(request: Request, *args, **kwargs) -> Hashable:
+    def _(*args, **kwargs):
         try:
-            result = fn(request, *args, **kwargs)
-            if iscoroutine(result):
-                result = yield from result
-            res = dict(
-                result=result,
-                error=None,
-                id=1
-            )
-            return success_response(json.dumps(res).encode())
+            if iscoroutinefunction(fn):
+                result = yield from fn(*args, **kwargs)
+            else:
+                result = fn(*args, **kwargs)
         except Exception as e:
-            res = dict(
-                result=None,
-                error=e.args,
-                id=1
-            )
-            return error_response(json.dumps(res).encode())
+            result = e
+        return context(result)
     return _
+
+
+def jsonrpc(fn: Callable) -> Handler:
+    def error(e: Exception) -> Response:
+        res = dict(result=None, error=e.args, id=1)
+        return error_response(json.dumps(res).encode())
+
+    def just(r: dict) -> Response:
+        res = dict(result=r, error=None, id=1)
+        return success_response(json.dumps(res).encode())
+
+    def handler(res: Maybe[Any, Exception]) -> Response:
+        if isinstance(res, Exception):
+            return error(res)
+        else:
+            return just(res)
+
+    return maybe_coro_cps(fn, handler)
