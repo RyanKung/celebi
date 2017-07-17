@@ -8,20 +8,21 @@ from celebi.core.types import (MaybeCorouteine, Handler,
 from asyncio import iscoroutinefunction
 
 
-__all__ = ['maybe_async', 'maybe_coro_cps', 'jsonrpc']
+__all__ = ['maybe_coroutine', 'maybe_async_cps', 'jsonrpc']
 
 
-def maybe_async(fn: Callable) -> Callable[..., MaybeCorouteine]:
+def maybe_coroutine(fn: Callable) -> Callable[..., MaybeCorouteine]:
     if iscoroutinefunction(fn):
         return coroutine
     else:
         return lambda x: x
 
 
-def maybe_coro_cps(fn: Callable) -> MaybeCorouteine:
+def maybe_async_cps(fn: Callable) -> MaybeCorouteine:
+
     def parted(context: Callable[[Maybe], Response]):
         @wraps(fn)
-        @maybe_async(fn)
+        @maybe_coroutine(fn)
         def _(*args, **kwargs):
             try:
                 if iscoroutinefunction(fn):
@@ -44,7 +45,7 @@ def jsonrpc(fn: Callable) -> Handler:
         res = dict(result=r, error=None, id=1)
         return success_response(json.dumps(res).encode())
 
-    @maybe_coro_cps(fn)
+    @maybe_async_cps(fn)
     def handler(res: Maybe[Any, Exception]) -> Response:
         if isinstance(res, Exception):
             return error(res)
