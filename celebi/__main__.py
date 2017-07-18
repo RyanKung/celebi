@@ -1,5 +1,5 @@
 # -*- eval: (venv-workon "celebi"); -*-
-from celebi.main import server
+from celebi import wsgi_server
 
 if __name__ == '__main__':
-    server().start()
+    wsgi_server().start()
