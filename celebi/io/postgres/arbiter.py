@@ -1,5 +1,7 @@
+from functools import partial
 import asyncpg
 from pulsar.apps import Application
+from pulsar import send, get_application, get_actor
 from functools import partial
 
 
@@ -27,21 +29,35 @@ class PostgresArbiter(Application):
         finally:
             return False
 
-    async def execute(self, worker):
-        pass
+    async def _execute(self, monitor, sql):
+        res = await monitor.conn.execute(sql)
+        return res
 
     async def monitor_start(self, monitor):
         print('start')
         conn = await self.connect()
         monitor.conn = conn
-        monitor.event('stopping').bind(
-            partial(self.disconnect, conn=monitor.conn))
+        # monitor.event('stopping').bind(
+        #     partial(self.disconnect, conn=monitor.conn))
 
     def monitor_stop(self, monitor):
-        self.disconnect()
+        #        self.disconnect()
+        pass
 
     async def worker_start(self, worker, exc=None):
+        print('bindent test')
         print('worker start')
 
     async def worker_stopping(self, worker, exc=None):
         print('worker stopping')
+
+    @classmethod
+    async def get_monitor(cls):
+        actor = get_actor().get_actor('postgres')
+        return actor
+
+    @classmethod
+    async def execute(cls, sql):
+        arbiter = await cls.get_monitor()
+        res = await send(arbiter, 'run', partial(cls._execute, cls), sql)
+        return res
