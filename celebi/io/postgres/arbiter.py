@@ -16,13 +16,13 @@ class PostgresArbiter(Application):
         self.configs = configs
         super().__init__(**kv)
 
-    async def connect(self, *args, **kwargs) -> asyncpg.Connection:
-        conn = await asyncpg.connect(**self.configs)
-        return conn
+    async def init(self, *args, **kwargs):
+        pool = await asyncpg.create_pool(**self.configs)
+        return pool
 
-    async def disconnect(self, monitor, conn, *args, **kwargs) -> bool:
+    def terminate(self, monitor, *args, **kwargs):
         try:
-            await conn.close()
+            monitor.pool.terminate()
             return True
         except Exception as e:
             raise(e)
@@ -30,19 +30,15 @@ class PostgresArbiter(Application):
             return False
 
     async def _execute(self, monitor, sql):
-        res = await monitor.conn.execute(sql)
-        return res
+        async with monitor.pool.acquire() as conn:
+            res = await conn.execute(sql)
+            return res
 
     async def monitor_start(self, monitor):
-        print('start')
-        conn = await self.connect()
-        monitor.conn = conn
-        # monitor.event('stopping').bind(
-        #     partial(self.disconnect, conn=monitor.conn))
-
-    def monitor_stop(self, monitor):
-        #        self.disconnect()
-        pass
+        print('monitor start')
+        pool = await self.init()
+        monitor.pool = pool
+        monitor.event('stopping').bind(self.terminate)
 
     async def worker_start(self, worker, exc=None):
         print('bindent test')

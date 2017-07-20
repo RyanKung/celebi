@@ -1,6 +1,6 @@
 import unittest
 
-from pulsar import send, get_application, get_actor
+from pulsar import send
 from pulsar.apps.test import dont_run_with_thread
 
 from celebi.io.postgres import PostgresArbiter
