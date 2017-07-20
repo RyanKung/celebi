@@ -1,5 +1,6 @@
 from functools import partial
 import asyncpg
+from asyncpg import Connection
 from pulsar.apps import Application
 from pulsar import send, get_actor
 
@@ -16,8 +17,7 @@ class PostgresArbiter(Application):
         super().__init__(**kv)
 
     async def init(self, *args, **kwargs):
-        pool = await asyncpg.create_pool(**self.configs)
-        return pool
+        return await asyncpg.create_pool(**self.configs)
 
     def terminate(self, monitor, *args, **kwargs):
         try:
@@ -30,8 +30,7 @@ class PostgresArbiter(Application):
 
     async def _execute(self, monitor, sql):
         async with monitor.pool.acquire() as conn:
-            res = await conn.execute(sql)
-            return res
+            return await conn.execute(sql)
 
     async def monitor_start(self, monitor):
         print('monitor start')
@@ -48,11 +47,9 @@ class PostgresArbiter(Application):
 
     @classmethod
     async def get_monitor(cls):
-        actor = get_actor().get_actor('postgres')
-        return actor
+        return get_actor().get_actor('postgres')
 
     @classmethod
     async def execute(cls, sql):
         arbiter = await cls.get_monitor()
-        res = await send(arbiter, 'run', partial(cls._execute, cls), sql)
-        return res
+        return await send(arbiter, 'run', partial(cls._execute, cls), sql)
