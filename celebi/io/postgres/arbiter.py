@@ -1,8 +1,7 @@
 from functools import partial
 import asyncpg
 from pulsar.apps import Application
-from pulsar import send, get_application, get_actor
-from functools import partial
+from pulsar import send, get_actor
 
 
 async def test(self, exec=None):
