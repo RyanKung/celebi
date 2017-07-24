@@ -17,10 +17,9 @@ class TestPostgresThread(unittest.TestCase):
 
     @classmethod
     async def setUpClass(cls):
-        s = PostgresArbiter(configs=POSTGRES_TEST)
-        cls.app_cfg = await send('arbiter', 'run', s)
+        cls.arbiter = PostgresArbiter(configs=POSTGRES_TEST, workers=1)
+        cls.app_cfg = await send('arbiter', 'run', cls.arbiter)
         print(cls.app_cfg)
-        cls.arbiter = s
 
     @classmethod
     def tearDownClass(cls):

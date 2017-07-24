@@ -1,55 +1,63 @@
-from functools import partial
+from typing import Iterable
 import asyncpg
-from asyncpg import Connection
+from asyncpg import Record
 from pulsar.apps import Application
 from pulsar import send, get_actor
-
-
-async def test(self, exec=None):
-    print('test')
+from pulsar.utils.config import Config
+from celebi.settings import POSTGRES
 
 
 class PostgresArbiter(Application):
     name = "postgres"
+    cfg = Config(apps=['asyncpg'], pgconf=POSTGRES)
 
     def __init__(self, configs: dict, **kv) -> None:
         self.configs = configs
         super().__init__(**kv)
 
-    async def init(self, *args, **kwargs):
-        return await asyncpg.create_pool(**self.configs)
+    async def connect(self, *args, **kwargs):
+        return await asyncpg.connect(**self.configs)
 
-    def terminate(self, monitor, *args, **kwargs):
-        try:
-            monitor.pool.terminate()
-            return True
-        except Exception as e:
-            raise(e)
-        finally:
-            return False
+    @staticmethod
+    async def _execute(actor, sql) -> str:
+        return await actor.conn.execute(sql)
 
-    async def _execute(self, monitor, sql):
-        async with monitor.pool.acquire() as conn:
-            return await conn.execute(sql)
+    @staticmethod
+    async def _fetch(actor, sql) -> dict:
+        res = await actor.conn.fetchrow(sql)
+        return dict(res)
 
-    async def monitor_start(self, monitor):
-        print('monitor start')
-        pool = await self.init()
-        monitor.pool = pool
-        monitor.event('stopping').bind(self.terminate)
+    @staticmethod
+    async def _transaction(actor, sqls) -> str:
+        async with actor.conn.transaction():
+            return [await actor.conn.execute(s) for s in sqls]
+
+    async def monitor_start(self, monitor, exec=None):
+        monitor.conn = await asyncpg.connect(**self.cfg.pgconf)
+
+    async def monitor_stopping(self, monitor, exec=None):
+        monitor.conn.terminate()
 
     async def worker_start(self, worker, exc=None):
-        print('bindent test')
-        print('worker start')
+        if not worker.is_arbiter or worker.is_monitor:
+            worker.conn = await asyncpg.connect(**self.cfg.pgconf)
 
     async def worker_stopping(self, worker, exc=None):
-        print('worker stopping')
+        if not worker.is_arbiter or worker.is_monitor:
+            if hasattr(worker, 'conn'):
+                worker.conn.terminate()
 
-    @classmethod
-    async def get_monitor(cls):
+    def get_monitor(self):
         return get_actor().get_actor('postgres')
 
-    @classmethod
-    async def execute(cls, sql):
-        arbiter = await cls.get_monitor()
-        return await send(arbiter, 'run', partial(cls._execute, cls), sql)
+    async def execute(self, sql: str) -> str:
+        arbiter = self.get_monitor()
+        return await send(arbiter, 'run', self._execute, sql)
+
+    async def fetch(self, sql: str) -> Record:
+        arbiter = self.get_monitor()
+        return await send(arbiter, 'run', self._fetch, sql)
+
+    async def transaction(self, sqls: Iterable[str]) -> str:
+        arbiter = self.get_monitor()
+        return await send(arbiter, 'run', self._transaction, sqls)
