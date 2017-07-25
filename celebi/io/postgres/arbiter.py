@@ -4,12 +4,19 @@ from asyncpg import Record
 from pulsar.apps import Application
 from pulsar import send, get_actor
 from pulsar.utils.config import Config
-from celebi.settings import POSTGRES
 
 
-class PostgresArbiter(Application):
+class RemberConfig(type):
+    def __call__(ins, *args, **kwargs):
+        pgcfg = kwargs.get('configs')
+        assert pgcfg, 'should pass postconfig via param configs'
+        cfg = Config(apps=['asyncpg'], pgconf=pgcfg)
+        ins.cfg = cfg
+        return type.__call__(ins, *args, **kwargs)
+
+
+class PostgresArbiter(Application, metaclass=RemberConfig):
     name = "postgres"
-    cfg = Config(apps=['asyncpg'], pgconf=POSTGRES)
 
     def __init__(self, configs: dict, **kv) -> None:
         self.configs = configs
