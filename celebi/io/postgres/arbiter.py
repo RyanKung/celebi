@@ -3,27 +3,13 @@ import asyncpg
 from asyncpg import Record
 from pulsar.apps import Application
 from pulsar import send, get_actor
-from pulsar.utils.config import Config
 
 
-class RemberConfig(type):
-    def __call__(ins, *args, **kwargs):
-        pgcfg = kwargs.get('configs')
-        assert pgcfg, 'should pass postconfig via param configs'
-        cfg = Config(apps=['asyncpg'], pgconf=pgcfg)
-        ins.cfg = cfg
-        return type.__call__(ins, *args, **kwargs)
-
-
-class PostgresArbiter(Application, metaclass=RemberConfig):
+class PostgresArbiter(Application):
     name = "postgres"
 
-    def __init__(self, configs: dict, **kv) -> None:
-        self.configs = configs
-        super().__init__(**kv)
-
     async def connect(self, *args, **kwargs):
-        return await asyncpg.connect(**self.configs)
+        return await asyncpg.connect(**self.cfg.pgconfigs)
 
     @staticmethod
     async def _execute(actor, sql) -> str:

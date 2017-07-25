@@ -1,5 +1,5 @@
 # -*- eval: (venv-workon "celebi"); -*-
-from celebi import wsgi_server
+from celebi import ComposedApp
 
 if __name__ == '__main__':
-    wsgi_server().start()
+    ComposedApp().start()
