@@ -63,6 +63,12 @@
 	
 	application的实现可以看pulsar的wsgiserver实现，或者celebi里的postgresArbiter的实现
 	
+	哦，还有一个imply
+	
+	如果我有n个服务，它们是用uwsgi其的，每个服务只有一个对称IO，它们之间用rpc通信。异步
+	
+	那么这是一个什么模型？这本质上是一个actor模型。
+	
 	
 ## 其实这里就写完了，下面的太长不要看，我写文档容易写偏，写着写着就水成paper了
 	
