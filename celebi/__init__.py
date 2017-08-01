@@ -11,8 +11,9 @@ __all__ = ['apis', 'wsgi', 'ComposedApp']
 
 
 class ComposedApp(MultiApp):
+    name = 'celebi'
     cfg = Config(pgconf=POSTGRES)
 
     def build(self):
         yield self.new_app(WSGIServer, callable=WsgiHandler((wsgi, )))
-        yield self.new_app(PostgresArbiter, configs=POSTGRES, worker=10)
+        yield self.new_app(PostgresArbiter, worker=10)

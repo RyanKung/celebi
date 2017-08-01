@@ -29,7 +29,8 @@ class PostgresArbiter(Application):
         monitor.conn = await asyncpg.connect(**self.cfg.pgconf)
 
     async def monitor_stopping(self, monitor, exec=None):
-        monitor.conn.terminate()
+        if hasattr(monitor, 'conn'):
+            monitor.conn.terminate()
 
     async def worker_start(self, worker, exc=None):
         if not worker.is_arbiter or worker.is_monitor:
@@ -40,7 +41,8 @@ class PostgresArbiter(Application):
             if hasattr(worker, 'conn'):
                 worker.conn.terminate()
 
-    def get_monitor(self):
+    @classmethod
+    def get_monitor(cls):
         return get_actor().get_actor('postgres')
 
     async def execute(self, sql: str) -> str:

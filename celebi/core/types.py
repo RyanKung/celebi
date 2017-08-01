@@ -1,4 +1,5 @@
 from typing import Union, Callable, Generic, GenericMeta, TypeVar
+
 from types import CoroutineType
 from pulsar.apps.wsgi import WsgiResponse, WsgiRequest
 
