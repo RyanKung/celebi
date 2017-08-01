@@ -2,10 +2,12 @@ from typing import Iterable
 import asyncpg
 from asyncpg import Record
 from pulsar.apps import Application
-from pulsar import send, get_actor
+from pulsar import send, get_actor, get_application
+
+__all__ = ['PostgresMonitor']
 
 
-class PostgresArbiter(Application):
+class PostgresMonitor(Application):
     name = "postgres"
 
     async def connect(self, *args, **kwargs):
@@ -41,10 +43,6 @@ class PostgresArbiter(Application):
             if hasattr(worker, 'conn'):
                 worker.conn.terminate()
 
-    @classmethod
-    def get_monitor(cls):
-        return get_actor().get_actor('postgres')
-
     async def execute(self, sql: str) -> str:
         arbiter = self.get_monitor()
         return await send(arbiter, 'run', self._execute, sql)
@@ -56,3 +54,11 @@ class PostgresArbiter(Application):
     async def transaction(self, sqls: Iterable[str]) -> str:
         arbiter = self.get_monitor()
         return await send(arbiter, 'run', self._transaction, sqls)
+
+    @classmethod
+    async def get_monitor(cls):
+        arbiter = get_actor().get_actor('arbiter')
+        monitor_name = next(
+            (m for m in arbiter.monitors if cls.name in m), None)
+        monitor = await get_application(monitor_name)
+        return monitor

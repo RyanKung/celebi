@@ -1,3 +1,3 @@
-from .arbiter import PostgresArbiter
+from .arbiter import PostgresMonitor
 
-__all__ = ['PostgresArbiter']
+__all__ = ['PostgresMonitor']
