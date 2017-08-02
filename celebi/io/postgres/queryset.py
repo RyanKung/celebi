@@ -6,19 +6,20 @@ __all__ = ['QuerySet', 'query', 'update', 'insert']
 
 key = str(time.time())
 
-monitor = PostgresMonitor.get_monitor()
+
+async def query(sql):
+    monitor = await PostgresMonitor.get_monitor()
+    return await monitor.fetch(sql)
 
 
-def query(sql):
-    return monitor.fetch(sql)
+async def update(sql):
+    monitor = await PostgresMonitor.get_monitor()
+    return await monitor.execute(sql)
 
 
-def update(sql):
-    return monitor.execute(sql)
-
-
-def insert(sql):
-    return monitor.execute(sql)
+async def insert(sql):
+    monitor = await PostgresMonitor.get_monitor()
+    return await monitor.execute(sql)
 
 
 class QuerySet(object):
@@ -67,28 +68,27 @@ class QuerySet(object):
         except:
             raise Exception("Series Failed")
 
-    def nearby(self, value, column, *args, **kwargs):
+    async def nearby(self, value, column, *args, **kwargs):
         data = self.format(kwargs)
-        res = query(self._sql['nearby'].format(**{
+        return await query(self._sql['nearby'].format(**{
             'table': self.tablename,
             'fields': utils.concat(map(utils.wrap_key, self.fields)),
             'value': utils.escape(value),
             'column': utils.escape(column),
             'rule': utils.get_and_seg(data)
         }))
-        return res
 
-    def get(self, oid):
-        res = query(self._sql['get_via_id'].format(**{
+    async def get(self, oid):
+        res = await query(self._sql['get_via_id'].format(**{
             'table': self.tablename,
             'fields': utils.concat(map(utils.wrap_key, self.fields)),
             'id': oid
         }))
         return res and dict(zip(self.fields, res[0])) if res else None
 
-    def get_by(self, *args, **kwargs):
+    async def get_by(self, *args, **kwargs):
         data = self.format(kwargs)
-        res = query(self._sql['filter'].format(**{
+        res = await query(self._sql['filter'].format(**{
             'table': self.tablename,
             'rule': utils.get_and_seg(data),
             'size': '1',
@@ -97,8 +97,8 @@ class QuerySet(object):
         }))
         return res and dict(zip(self.fields, res[0]))
 
-    def search(self, key, value, start, limit, filters=''):
-        return query(self._sql['search'].format(**{
+    async def search(self, key, value, start, limit, filters=''):
+        return await query(self._sql['search'].format(**{
             'table': self.tablename,
             'fields': utils.concat(map(utils.wrap_key, self.fields)),
             'key': self.format(key),
@@ -108,13 +108,13 @@ class QuerySet(object):
             'extra': filters and utils.get_pairs(filters) + 'and' or ''
         }))
 
-    def get_list(self, size=100, offset=0, sort_key='') -> list:
+    async def get_list(self, size=100, offset=0, sort_key='') -> list:
         if isinstance(sort_key, list):
             sort_key = utils.concat(map(utils.set_desc, sort_key))
         else:
             sort_key = sort_key and utils.set_desc(sort_key) or ''
 
-        res = query(self._sql['get_list'].format(**{
+        res = await query(self._sql['get_list'].format(**{
             'table': self.tablename,
             'fields': utils.concat(map(utils.wrap_key, self.fields)),
             'size': str(int(size)),
@@ -126,17 +126,17 @@ class QuerySet(object):
         }))
         return [dict(zip(self.fields, r)) for r in res]
 
-    def find_in(self, key, targets, fields=[]) -> dict:
-        return query(self._sql['filter_in'].format(**{
+    async def find_in(self, key, targets, fields=[]) -> dict:
+        return await query(self._sql['filter_in'].format(**{
             'table': self.tablename,
             'fields': utils.concat(map(utils.wrap_key, fields or self.fields)),
             'key': key,
             'targets': utils.concat(map(utils.wrap_value, targets))
         }))
 
-    def find_near(self, key, start, end, fields=[], *args, **kwargs) -> dict:
+    async def find_near(self, key, start, end, fields=[], *args, **kwargs) -> dict:
         data = self.format(kwargs)
-        res = query(self._sql['find_near'].format(**{
+        res = await query(self._sql['find_near'].format(**{
             'table': self.tablename,
             'fields': utils.concat(map(utils.wrap_key, fields or self.fields)),
             'key': key,
@@ -146,9 +146,9 @@ class QuerySet(object):
         }))
         return [dict(zip(self.fields, r)) for r in res]
 
-    def find_in_range(self, key, start, end, fields=[], *args, **kwargs) -> dict:
+    async def find_in_range(self, key, start, end, fields=[], *args, **kwargs) -> dict:
         data = self.format(kwargs)
-        res = query(self._sql['filter_in_range'].format(**{
+        res = await query(self._sql['filter_in_range'].format(**{
             'table': self.tablename,
             'fields': utils.concat(map(utils.wrap_key, fields or self.fields)),
             'key': key,
@@ -158,25 +158,25 @@ class QuerySet(object):
         }))
         return [dict(zip(self.fields, r)) for r in res]
 
-    def count(self, field):
+    async def count(self, field):
         field = utils.escape(field) or '*'
-        return query(self._sql['count'].format(**{
+        return await query(self._sql['count'].format(**{
             'table': self.tablename,
             'field': field
         }))
 
-    def count_on_rule(self, field, rule):
+    async def count_on_rule(self, field, rule):
         rule = self.format(rule)
         field = utils.escape(field)
-        return query(self._sql['count_on_rule'].format(**{
+        return await query(self._sql['count_on_rule'].format(**{
             'table': self.tablename,
             'rule': utils.get_and_seg(rule),
             'field': field
         }))
 
-    def filter(self, limit=100, offset=0, sort_key='', *args, **kwargs):
+    async def filter(self, limit=100, offset=0, sort_key='', *args, **kwargs):
         data = self.format(kwargs)
-        res = query(self._sql['filter'].format(**{
+        res = await query(self._sql['filter'].format(**{
             'table': self.tablename,
             'rule': utils.get_and_seg(data),
             'size': str(int(limit)),
@@ -185,14 +185,14 @@ class QuerySet(object):
         }))
         return [dict(zip(self.fields, r)) for r in res]
 
-    def sortby(self, sort_key='id', offset=0, limit=100, extra="", decr=False, *args, **kwargs):
+    async def sortby(self, sort_key='id', offset=0, limit=100, extra="", decr=False, *args, **kwargs):
         data = self.format(kwargs)
         if isinstance(sort_key, list):
             sort_key = utils.concat(map(utils.set_desc, sort_key))
         else:
             sort_key = utils.set_desc(sort_key)
         tmpl = decr and 'filter_with_orderby_decr' or 'filter_with_orderby'
-        return query(self._sql[tmpl].format(**{
+        return await query(self._sql[tmpl].format(**{
             'table': self.tablename,
             'rule': utils.get_and_seg(data),
             'size': str(int(limit)),
@@ -201,80 +201,80 @@ class QuerySet(object):
             'fields': utils.concat(map(utils.wrap_key, self.fields)),
         }))
 
-    def insert(self, *args, **kwargs):
+    async def insert(self, *args, **kwargs):
         data = self.format(kwargs)
-        return insert(self._sql['insert'].format(**{
+        return await insert(self._sql['insert'].format(**{
             'table': self.tablename,
             'keys': utils.concat(map(utils.wrap_key, data.keys())),
             'values': utils.concat(map(utils.wrap_value, data.values()))
         }))
 
-    def replace(self, *args, **kwargs):
+    async def replace(self, *args, **kwargs):
         data = self.format(kwargs)
-        return insert(self._sql['replace'].format(**{
+        return await insert(self._sql['replace'].format(**{
             'table': self.tablename,
             'keys': utils.concat(map(utils.wrap_key, data.keys())),
             'values': utils.concat(map(utils.wrap_value, data.values()))
         }))
 
-    def update(self, oid, *args, **kwargs):
+    async def update(self, oid, *args, **kwargs):
         data = self.format(kwargs)
         pairs = utils.get_pairs(data)
-        return update(self._sql['update_via_id'].format(**{
+        return await update(self._sql['update_via_id'].format(**{
             'id': oid,
             'table': self.tablename,
             'key_value_pairs': pairs
         }))
 
-    def append_array(self, oid, key, value):
-        return update(self._sql['append_array'].format(**{
+    async def append_array(self, oid, key, value):
+        return await update(self._sql['append_array'].format(**{
             'id': oid,
             'table': self.tablename,
             'key': key,
             'value': value
         }))
 
-    def insert_or_update(self, *args, **kwargs) -> dict:
+    async def insert_or_update(self, *args, **kwargs) -> dict:
         data = self.format(kwargs)
-        return insert(self._sql('insert_or_update').format(**{
+        return await insert(self._sql('insert_or_update').format(**{
             'table': self.tablename,
             'keys': utils.concat(map(utils.wrap_key, data.keys())),
             'values': utils.concat(map(utils.wrap_key, data.values())),
             'key_value_pairs': utils.get_pairs(data)
         }))
 
-    def update_by(self, rules, *args, **kwargs):
+    async def update_by(self, rules, *args, **kwargs):
         data = self.format(kwargs)
         rules = self.format(rules)
-        return update(self._sql['update'].format(**{
+        return await update(self._sql['update'].format(**{
             'table': self.tablename,
             'rules': utils.get_and_seg(rules),
             'key_value_pairs': utils.get_pairs(data)
         }))
 
-    def delete(self, oid):
-        return update(self._sql['delete_via_id'].format(**{
+    async def delete(self, oid):
+        return await update(self._sql['delete_via_id'].format(**{
             'table': self.tablename,
             'id': oid
         }))
 
-    def delete_by(self, *args, **kwargs):
+    async def delete_by(self, *args, **kwargs):
         data = self.format(kwargs)
-        return update(self._sql['delete'].format(**{
+        return await update(self._sql['delete'].format(**{
             'table': self.tablename,
             'rules': utils.get_and_seg(data)
         }))
 
-    def incr(self, oid, key, num):
-        return update(self._sql['incr'].format(**{
+    async def incr(self, oid, key, num):
+        return await update(self._sql['incr'].format(**{
             'id': oid,
             'table': self.tablename,
             'key': key,
             'num': num
         }))
 
-    def decr(self, oid, key, num):
-        return update(self._sql['decr'].format(**{
+    async def decr(self, oid, key, num):
+        return await update(self._sql['decr'].format(**{
             'id': oid,
             'table': self.tablename,
             'key': key,

@@ -44,21 +44,30 @@ class PostgresMonitor(Application):
                 worker.conn.terminate()
 
     async def execute(self, sql: str) -> str:
-        arbiter = self.get_monitor()
-        return await send(arbiter, 'run', self._execute, sql)
+        monitor = await self.get_monitor()
+        return await send(monitor, 'run', self._execute, sql)
 
     async def fetch(self, sql: str) -> Record:
-        arbiter = self.get_monitor()
-        return await send(arbiter, 'run', self._fetch, sql)
+        monitor = await self.get_monitor()
+        return await send(monitor, 'run', self._fetch, sql)
 
     async def transaction(self, sqls: Iterable[str]) -> str:
-        arbiter = self.get_monitor()
-        return await send(arbiter, 'run', self._transaction, sqls)
+        monitor = await self.get_monitor()
+        return await send(monitor, 'run', self._transaction, sqls)
+
+    @classmethod
+    async def get_arbiter(cls):
+        arbiter = get_actor().get_actor('arbiter')
+        return arbiter
 
     @classmethod
     async def get_monitor(cls):
-        arbiter = get_actor().get_actor('arbiter')
-        monitor_name = next(
-            (m for m in arbiter.monitors if cls.name in m), None)
-        monitor = await get_application(monitor_name)
-        return monitor
+        async def get_monitor_via_arbiter():
+            monitor_name = next(
+                (m for m in arbiter.monitors if cls.name in m), None)
+            monitor = await get_application(monitor_name)
+            return monitor
+
+        name = cls.cfg.name or cls.name
+        monitor = get_actor().get_actor(name)
+        return monitor or await get_monitor_via_arbiter()
