@@ -19,3 +19,4 @@ class TestComposedApp(unittest.TestCase):
         self.assertTrue(wsgi)
         self.assertTrue(arbiter)
         self.assertEqual(postgres1, postgres)
+        self.assertTrue(hasattr(postgres, 'execute'))
