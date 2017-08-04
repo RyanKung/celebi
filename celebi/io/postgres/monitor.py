@@ -46,7 +46,7 @@ class PostgresMonitor(Application):
     @classmethod
     async def execute(cls, sql: str) -> str:
         monitor = await cls.get_monitor()
-        return await send(monitor, 'run', cls._execute, sql)
+        return await send(self, 'run', cls._execute, sql)
 
     @classmethod
     async def fetch(cls, sql: str) -> Record:
