@@ -8,18 +8,18 @@ key = str(time.time())
 
 
 async def query(sql):
-    monitor = await PostgresMonitor.get_monitor()
-    return await monitor.fetch(sql)
+    print(sql)
+    return await PostgresMonitor.fetch(sql)
 
 
 async def update(sql):
-    monitor = await PostgresMonitor.get_monitor()
-    return await monitor.execute(sql)
+    print(sql)
+    return await PostgresMonitor.execute(sql)
 
 
 async def insert(sql):
-    monitor = await PostgresMonitor.get_monitor()
-    return await monitor.execute(sql)
+    print(sql)
+    return await PostgresMonitor.execute(sql)
 
 
 class QuerySet(object):

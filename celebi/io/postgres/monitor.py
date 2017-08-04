@@ -43,17 +43,20 @@ class PostgresMonitor(Application):
             if hasattr(worker, 'conn'):
                 worker.conn.terminate()
 
-    async def execute(self, sql: str) -> str:
-        monitor = await self.get_monitor()
-        return await send(monitor, 'run', self._execute, sql)
+    @classmethod
+    async def execute(cls, sql: str) -> str:
+        monitor = await cls.get_monitor()
+        return await send(monitor, 'run', cls._execute, sql)
 
-    async def fetch(self, sql: str) -> Record:
-        monitor = await self.get_monitor()
-        return await send(monitor, 'run', self._fetch, sql)
+    @classmethod
+    async def fetch(cls, sql: str) -> Record:
+        monitor = await cls.get_monitor()
+        return await send(monitor, 'run', cls._fetch, sql)
 
-    async def transaction(self, sqls: Iterable[str]) -> str:
-        monitor = await self.get_monitor()
-        return await send(monitor, 'run', self._transaction, sqls)
+    @classmethod
+    async def transaction(cls, sqls: Iterable[str]) -> str:
+        monitor = await cls.get_monitor()
+        return await send(monitor, 'run', cls._transaction, sqls)
 
     @classmethod
     async def get_arbiter(cls):
@@ -63,6 +66,7 @@ class PostgresMonitor(Application):
     @classmethod
     async def get_monitor(cls):
         async def get_monitor_via_arbiter():
+            arbiter = get_actor().get_actor('arbiter')
             monitor_name = next(
                 (m for m in arbiter.monitors if cls.name in m), None)
             monitor = await get_application(monitor_name)

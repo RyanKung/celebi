@@ -13,8 +13,9 @@ class TestPostgresQueryset(TestPostgresProcess):
 
     async def test_queryset(self):
         prototype = types.Table('Test', [
-            ('id', types.integer),
             ('name', types.varchar)
         ])
         manager = QuerySet(prototype)
         self.assertTrue(manager)
+        ins = await manager.insert(name='abd')
+        self.assertTrue(ins)
