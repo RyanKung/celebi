@@ -15,13 +15,13 @@ class TestPostgresThread(unittest.TestCase):
 
     @classmethod
     def name(cls):
-        return 'postgres'
+        return 'postgres_celebi'
 
     @classmethod
     async def setUpClass(cls):
-        cfg = Config(pgconf=POSTGRES_TEST, name='postgres')
+        cfg = Config(pgconf=POSTGRES_TEST, name='postgres_celebi')
         cls.monitor = PostgresMonitor(
-            cfg=cfg, workers=1, name='postgres_celebi')
+            cfg=cfg, workers=20)
         try:
             cls.app_cfg = await send('arbiter', 'run', cls.monitor)
         except ImproperlyConfigured:

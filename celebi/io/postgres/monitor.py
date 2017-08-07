@@ -25,7 +25,8 @@ class PostgresMonitor(Application):
     @staticmethod
     async def _transaction(actor, sqls) -> str:
         async with actor.conn.transaction():
-            return [await actor.conn.execute(s) for s in sqls]
+            res = [await actor.conn.execute(s) for s in sqls]
+        return res
 
     async def monitor_start(self, monitor, exec=None):
         monitor.conn = await asyncpg.connect(**self.cfg.pgconf)
