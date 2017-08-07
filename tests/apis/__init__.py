@@ -39,11 +39,11 @@ class TestCelebiThread(unittest.TestCase):
         cls.client = HttpClient()
 
     @classmethod
-    def tearDownClass(cls):
+    async def tearDownClass(cls):
         if cls.app_cfg is not None:
-            return send('arbiter', 'kill_actor', cls.app_cfg.name)
+            await send('arbiter', 'kill_actor', cls.app_cfg.name)
         if cls.pg_cfg is not None:
-            return send('arbiter', 'kill_actor', cls.pg_cfg.name)
+            await send('arbiter', 'kill_actor', cls.pg_cfg.name)
 
     async def testMeta(self):
         app = await get_application(self.name())

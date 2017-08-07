@@ -22,6 +22,7 @@ class TestComposedApp(unittest.TestCase):
         self.assertTrue(hasattr(postgres, 'execute'))
 
     @classmethod
-    def tearDownClass(cls):
+    async def tearDownClass(cls):
         for app in cls.monitor.apps():
-            send('arbiter', 'kill_actor', app.name)
+            await send('arbiter', 'kill_actor', app.name)
+        return

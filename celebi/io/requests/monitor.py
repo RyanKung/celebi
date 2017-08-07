@@ -1,11 +1,12 @@
 from pulsar import get_application, get_actor, send
 from pulsar.apps import Application
 from pulsar.apps import http
+from celebi.io.abstract import CelebiMonitor
 
 __all__ = ['RequestMonitor']
 
 
-class RequestMonitor(Application):
+class RequestMonitor(CelebiMonitor):
     name = 'request_worker'
 
     async def monitor_start(self, monitor, exec=None):
@@ -19,23 +20,6 @@ class RequestMonitor(Application):
         async with actor.sessions as sessions:
             res = await getattr(sessions, method.lower())(url, **args)
         return res
-
-    @classmethod
-    async def get_arbiter(cls):
-        arbiter = get_actor().get_actor('arbiter')
-        return arbiter
-
-    @classmethod
-    async def get_monitor(cls):
-        async def get_monitor_via_arbiter():
-            arbiter = get_actor().get_actor('arbiter')
-            monitor_name = next(
-                (m for m in arbiter.monitors if cls.name in m), None)
-            monitor = await get_application(monitor_name)
-            return monitor
-        name = cls.cfg.name or cls.name
-        monitor = get_actor().get_actor(name)
-        return monitor or await get_monitor_via_arbiter()
 
     @classmethod
     async def request(cls, url, method='GET', *args, **kwargs):

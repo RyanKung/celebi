@@ -1,13 +1,14 @@
 from typing import Iterable
 import asyncpg
 from asyncpg import Record
-from pulsar.apps import Application
 from pulsar import send, get_actor, get_application
+from celebi.io.abstract import CelebiMonitor
+
 
 __all__ = ['PostgresMonitor']
 
 
-class PostgresMonitor(Application):
+class PostgresMonitor(CelebiMonitor):
     name = "postgres"
 
     async def connect(self, *args, **kwargs):
@@ -58,21 +59,3 @@ class PostgresMonitor(Application):
     async def transaction(cls, sqls: Iterable[str]) -> str:
         monitor = await cls.get_monitor()
         return await send(monitor, 'run', cls._transaction, sqls)
-
-    @classmethod
-    async def get_arbiter(cls):
-        arbiter = get_actor().get_actor('arbiter')
-        return arbiter
-
-    @classmethod
-    async def get_monitor(cls):
-        async def get_monitor_via_arbiter():
-            arbiter = get_actor().get_actor('arbiter')
-            monitor_name = next(
-                (m for m in arbiter.monitors if cls.name in m), None)
-            monitor = await get_application(monitor_name)
-            return monitor
-
-        name = cls.cfg.name or cls.name
-        monitor = get_actor().get_actor(name)
-        return monitor or await get_monitor_via_arbiter()

@@ -1,11 +1,10 @@
 import unittest
 
-from pulsar import send, get_actor
+from pulsar import send
 from pulsar.apps.test import dont_run_with_thread
 from pulsar import Config
 
 from celebi.io.postgres import PostgresMonitor
-from pulsar.utils.exceptions import ImproperlyConfigured
 from celebi.settings import POSTGRES_TEST
 
 
@@ -22,15 +21,12 @@ class TestPostgresThread(unittest.TestCase):
         cfg = Config(pgconf=POSTGRES_TEST, name='postgres_celebi')
         cls.monitor = PostgresMonitor(
             cfg=cfg, workers=20)
-        try:
-            cls.app_cfg = await send('arbiter', 'run', cls.monitor)
-        except ImproperlyConfigured:
-            cls.app_cfg = get_actor().get_actor('postgres_celebi')
+        cls.app_cfg = await send('arbiter', 'run', cls.monitor)
 
     @classmethod
-    def tearDownClass(cls):
+    async def tearDownClass(cls):
         if cls.app_cfg is not None:
-            return send('arbiter', 'kill_actor', cls.app_cfg.name)
+            return await send('arbiter', 'kill_actor', cls.app_cfg.name)
 
 
 @dont_run_with_thread

@@ -1,11 +1,10 @@
-from pulsar import get_application, get_actor
-from celebi.io.abstract import CelebiMonitor
+from pulsar import get_application, get_actor, send
+from pulsar.apps import Application
 
-__all__ = ['SchedulerMonitor']
+__all__ = ['CelebiMonitor']
 
 
-class SchedulerMonitor(CelebiMonitor):
-    name = 'scheduler_worker'
+class CelebiMonitor(Application):
 
     @classmethod
     async def get_arbiter(cls):
@@ -23,3 +22,8 @@ class SchedulerMonitor(CelebiMonitor):
         name = cls.cfg.name or cls.name
         monitor = get_actor().get_actor(name)
         return monitor or await get_monitor_via_arbiter()
+
+    @classmethod
+    async def kill(cls):
+        monitor = await cls.get_monitor()
+        return await send('arbiter', 'kill_actor', monitor.name)
