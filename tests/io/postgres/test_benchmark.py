@@ -13,9 +13,6 @@ class TestBenchmark(TestPostgresProcess):
         self.assertEqual('CREATE TABLE', res)
 
     async def test_brenchmark(self):
-        '''
-        Benchmark:: Call transaction(insert x 10) 1000 time cost 8.52885127067566 With Actor modeling Asyncpg
-        '''
         count = 1000
         bg_time = time.time()
         res = [await self.monitor.transaction([s] * 10) for s in ["INSERT Into Test(name) VALUES ('test')"] * count]
@@ -25,9 +22,6 @@ class TestBenchmark(TestPostgresProcess):
               (count, end_time - bg_time))
 
     async def test_pure_asyncpg_brenchmark(self):
-        '''
-        Benchmark:: Call transaction(insert x 10) 1000 time cost 111.19546413421631 with Origin Asyncpg
-        '''
 
         count = 1000
         bg_time = time.time()
