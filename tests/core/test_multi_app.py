@@ -7,8 +7,8 @@ from celebi import ComposedApp
 class TestComposedApp(unittest.TestCase):
     @classmethod
     async def setUpClass(cls):
-        cls.arbiter = ComposedApp()
-        cls.app_cfg = await send('arbiter', 'run', cls.arbiter)
+        cls.monitor = ComposedApp()
+        cls.app_cfg = await send('arbiter', 'run', cls.monitor)
 
     async def test_get_monitor(self):
         wsgi = await get_application('celebi')
@@ -20,3 +20,8 @@ class TestComposedApp(unittest.TestCase):
         self.assertTrue(arbiter)
         self.assertEqual(postgres1, postgres)
         self.assertTrue(hasattr(postgres, 'execute'))
+
+    @classmethod
+    def tearDownClass(cls):
+        for app in cls.monitor.apps():
+            send('arbiter', 'kill_actor', app.name)
