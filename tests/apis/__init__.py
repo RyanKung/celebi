@@ -4,7 +4,11 @@ from pulsar import send, get_application, get_actor
 from pulsar.apps.http import HttpClient
 from pulsar.apps.test import dont_run_with_thread
 
-from celebi import wsgi_server as server
+from celebi import wsgi, apis, WSGIServer, WsgiHandler
+
+
+def server(**kwargs):
+    return WSGIServer(callable=WsgiHandler((wsgi, )), **kwargs)
 
 
 class TestCelebiThread(unittest.TestCase):
