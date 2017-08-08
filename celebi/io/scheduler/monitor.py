@@ -1,4 +1,5 @@
-from pulsar import get_application, get_actor
+import time
+from functools import wraps
 from celebi.io.abstract import CelebiMonitor
 
 __all__ = ['SchedulerMonitor']
@@ -6,20 +7,15 @@ __all__ = ['SchedulerMonitor']
 
 class SchedulerMonitor(CelebiMonitor):
     name = 'scheduler_worker'
+    tasks = []
 
-    @classmethod
-    async def get_arbiter(cls):
-        arbiter = get_actor().get_actor('arbiter')
-        return arbiter
+    def task(self, fn, delta=1):
+        self.tasks.append([delta, fn])
 
-    @classmethod
-    async def get_monitor(cls):
-        async def get_monitor_via_arbiter():
-            arbiter = get_actor().get_actor('arbiter')
-            monitor_name = next(
-                (m for m in arbiter.monitors if cls.name in m), None)
-            monitor = await get_application(monitor_name)
-            return monitor
-        name = cls.cfg.name or cls.name
-        monitor = get_actor().get_actor(name)
-        return monitor or await get_monitor_via_arbiter()
+        @wraps(fn)
+        def _(*args, **kwargs):
+            return fn(*args, **kwargs)
+        return _
+
+    def monitor_task(self, monitor):
+        [t() for t in self.tasks if int(time.time()) % t[0]]
