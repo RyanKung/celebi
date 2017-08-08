@@ -11,12 +11,13 @@ class TestComposedApp(unittest.TestCase):
         cls.app_cfg = await send('arbiter', 'run', cls.monitor)
 
     async def test_get_monitor(self):
-        wsgi = await get_application('celebi')
-        postgres = await get_application('postgres_celebi')
+        app = await get_application('celebi')
+        print(self.monitor.apps()[1].apps())
+        postgres = await get_application('postgres_io_celebi')
         arbiter = get_actor().get_actor('arbiter')
         postgres1 = await PostgresMonitor.get_monitor()
         self.assertTrue(postgres)
-        self.assertTrue(wsgi)
+        self.assertTrue(app)
         self.assertTrue(arbiter)
         self.assertEqual(postgres1, postgres)
         self.assertTrue(hasattr(postgres, 'execute'))
