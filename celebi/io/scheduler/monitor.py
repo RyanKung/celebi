@@ -18,5 +18,4 @@ class SchedulerMonitor(CelebiMonitor):
         return _
 
     def monitor_task(self, monitor):
-        print('checking')
         [t[1]() for t in self._tasks if t[0](time.time())]
