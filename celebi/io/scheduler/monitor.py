@@ -7,10 +7,10 @@ __all__ = ['SchedulerMonitor']
 
 class SchedulerMonitor(CelebiMonitor):
     name = 'scheduler_worker'
-    tasks = []
+    _tasks = []
 
-    def task(self, fn, delta=1):
-        self.tasks.append([delta, fn])
+    def task(self, fn, rule=lambda t: int(t) % 1 == 0):
+        self._tasks.append([rule, fn])
 
         @wraps(fn)
         def _(*args, **kwargs):
@@ -18,4 +18,5 @@ class SchedulerMonitor(CelebiMonitor):
         return _
 
     def monitor_task(self, monitor):
-        [t() for t in self.tasks if int(time.time()) % t[0]]
+        print('checking')
+        [t[1]() for t in self._tasks if t[0](time.time())]
