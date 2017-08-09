@@ -1,7 +1,7 @@
 import aio_etcd as etcd
 from pulsar import get_actor
 from pulsar.apps.wsgi import WSGIServer, WsgiResponse, WsgiHandler
-from celebi.io.abstract import CelebiMonitor
+from celebi.io.abstract import CelebiMonitor, CelebiMonitorNotFound
 from pulsar.apps.wsgi import Router
 
 __all__ = ['RemoteMonitorWSGI']
@@ -13,14 +13,13 @@ blueprint = Router('/')
 async def remote_wsgi(request):
     monitor = request.urlargs['monitor']
     actor = get_actor()
-    print(actor.is_arbiter(), actor.is_monitor(), actor.name)
     monitor = actor.get_actor('remote_monitor')
     if monitor:
         monitor.fire_event('test', 'fukcing run')
     elif not (actor.is_arbiter() or actor.is_monitor()):
         actor.monitor.fire_event('test', s='fukcing run')
     else:
-        print('cant find monitor')
+        raise CelebiMonitorNotFound('Cant found Monitor %s' % monitor)
     return WsgiResponse(200, 'test')
 
 

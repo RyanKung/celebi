@@ -1,7 +1,11 @@
 from pulsar import get_application, get_actor, send
 from pulsar.apps import Application
 
-__all__ = ['CelebiMonitor']
+__all__ = ['CelebiMonitor', 'CelebiMonitorNotFound']
+
+
+class CelebiMonitorNotFound(Exception):
+    pass
 
 
 class CelebiMonitor(Application):
