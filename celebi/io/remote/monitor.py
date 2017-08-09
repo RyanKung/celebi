@@ -1,6 +1,9 @@
-import aio_etcd as etcd
-from pulsar import get_actor
+from hashlib import sha1
+import time
+import json
+from pulsar import get_actor, Future
 from pulsar.apps.wsgi import WSGIServer, WsgiResponse, WsgiHandler
+import aio_etcd as etcd
 from celebi.io.abstract import CelebiMonitor, CelebiMonitorNotFound
 from pulsar.apps.wsgi import Router
 
@@ -9,18 +12,25 @@ __all__ = ['RemoteMonitorWSGI']
 blueprint = Router('/')
 
 
-@blueprint.router('/remote/<string:monitor>/', methods=['post'])
+@blueprint.router('/remote/<string:monitor>/event/<string:event>/', methods=['post'])
 async def remote_wsgi(request):
-    monitor = request.urlargs['monitor']
+    hash_code = sha1(str(time.time()).encode()).hexdigest()
+    monitor_name = request.urlargs['monitor']
+    event_name = request.urlargs['event']
+    data = request.body_data
+
     actor = get_actor()
-    monitor = actor.get_actor('remote_monitor')
+    monitor = actor.get_actor(monitor_name)
     if monitor:
-        monitor.fire_event('test', 'fukcing run')
-    elif not (actor.is_arbiter() or actor.is_monitor()):
-        actor.monitor.fire_event('test', s='fukcing run')
+        monitor.fire_event(event_name, data)
+    elif not (actor.is_arbiter() or actor.is_monitor() and actor.monitor == monitor):
+        actor.monitor.fire_event(event_name, msg=data)
     else:
         raise CelebiMonitorNotFound('Cant found Monitor %s' % monitor)
-    return WsgiResponse(200, 'test')
+    return WsgiResponse(200, json.dumps({
+        'successed': True,
+        'token': hash_code
+    }))
 
 
 class RemoteMonitorWSGI(WSGIServer, CelebiMonitor):
@@ -33,8 +43,19 @@ class RemoteMonitorWSGI(WSGIServer, CelebiMonitor):
             self.cfg.blacklist = []
 
     @staticmethod
-    def event_test(s):
-        print('test event %s' % s)
+    async def singlecast(msg, actor_name):
+        actor = get_actor()
+        if not actor.name == actor_name:
+            actor = actor.get_actor(actor_name)
+        if not actor and actor.monitor.name == actor.name:
+            actor = actor.monitor
+        actor.fire_event('singlecast', msg)
+        actor.future = Future()
+        return actor.future
+
+    @staticmethod
+    def event_test(msg):
+        print('test event %s' % msg)
 
     async def monitor_start(self, monitor, exec=None):
         monitor.bind_event('test', self.event_test)
@@ -46,3 +67,9 @@ class RemoteMonitorWSGI(WSGIServer, CelebiMonitor):
 
     async def worker_start(self, worker, *args, **kwargs):
         worker.bind_event('test', self.event_test)
+
+    async def search_remote(self):
+        pass
+
+    async def sync_remote(self):
+        pass

@@ -13,7 +13,7 @@ class TestRemoteMonitor(unittest.TestCase):
         cls.uri = 'http://{0}:{1}'.format(*cls.app_cfg.addresses[0])
 
     async def test_basic(self):
-        url = self.uri + '/remote/3/'
+        url = self.uri + '/remote/remote_monitor/event/test/'
         resp = await self.client.post(url)
         self.assertEqual(resp.status_code, 200)
         m = await self.monitor.get_monitor()
