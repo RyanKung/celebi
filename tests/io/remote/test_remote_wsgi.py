@@ -1,5 +1,5 @@
 import unittest
-from pulsar import send
+from pulsar import send, get_actor
 from celebi.io.remote import RemoteMonitorWSGI
 from pulsar.apps.http import HttpClient
 
@@ -7,15 +7,18 @@ from pulsar.apps.http import HttpClient
 class TestRemoteMonitor(unittest.TestCase):
     @classmethod
     async def setUpClass(cls):
-        cls.monitor = RemoteMonitorWSGI(workers=2)
+        cls.monitor = RemoteMonitorWSGI(workers=5)
         cls.app_cfg = await send('arbiter', 'run', cls.monitor)
         cls.client = HttpClient()
         cls.uri = 'http://{0}:{1}'.format(*cls.app_cfg.addresses[0])
 
     async def test_basic(self):
-        url = self.uri
+        url = self.uri + '/remote/3/'
         resp = await self.client.post(url)
-        self.assertTrue(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 200)
+        m = await self.monitor.get_monitor()
+        self.assertEqual(m.name, 'remote_monitor')
+        self.assertTrue(get_actor().get_actor(m.name))
 
     @classmethod
     def tearDownClass(cls):

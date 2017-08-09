@@ -1,7 +1,7 @@
 from typing import Iterable
 import asyncpg
 from asyncpg import Record
-from pulsar import send, get_actor, get_application
+from pulsar import send
 from celebi.io.abstract import CelebiMonitor
 
 
