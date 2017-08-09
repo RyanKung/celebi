@@ -9,7 +9,7 @@ from celebi.io import RequestMonitor
 from celebi.io import SchedulerMonitor
 from celebi.settings import POSTGRES
 
-__all__ = ['apis', 'wsgi', 'ComposedApp']
+__all__ = ['apis', 'wsgi', 'ComposedApp', 'ComposedIO']
 
 
 class ComposedIO(MultiApp):
