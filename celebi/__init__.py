@@ -1,6 +1,5 @@
 # -*- eval: (venv-workon "celebi"); -*-
 
-from pulsar import Config
 from pulsar.apps import MultiApp
 from pulsar.apps.wsgi.handlers import WsgiHandler
 from pulsar.apps.wsgi import WSGIServer
@@ -8,18 +7,16 @@ from celebi.core import wsgi
 from celebi.io import PostgresMonitor
 from celebi.io import RequestMonitor
 from celebi.io import SchedulerMonitor
-from celebi.settings import POSTGRES
 
-__all__ = ['wsgi', 'ComposedApp', 'ComposedIO']
+__all__ = ['wsgi', 'ComposedApp', 'ComposedIO',
+           'PostgresMonitor', 'RequestMonitor', 'SchedulerMonitor']
 
 
 class ComposedIO(MultiApp):
     name = 'io'
-    cfg = Config(pgconf=POSTGRES)
 
     def build(self):
         yield self.new_app(RequestMonitor, worker=10)
-        yield self.new_app(PostgresMonitor, worker=10)
         yield self.new_app(SchedulerMonitor, worker=10)
 
 
