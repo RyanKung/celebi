@@ -2,7 +2,7 @@
 
 import unittest
 from pulsar import send, get_actor
-from celebi.io.remote import RemoteMonitorWSGI
+from jirachi.io.remote import RemoteMonitorWSGI
 from pulsar.apps.http import HttpClient
 
 

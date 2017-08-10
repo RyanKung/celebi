@@ -1,6 +1,6 @@
 import unittest
 from pulsar import send
-from celebi.io.requests import RequestMonitor
+from jirachi.io.requests import RequestMonitor
 
 
 class TestRequest(unittest.TestCase):

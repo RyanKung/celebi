@@ -1,6 +1,6 @@
 from tests.io.postgres import TestPostgresProcess
-from celebi.io.postgres import QuerySet
-from celebi.io.postgres import types
+from jirachi.io.postgres import QuerySet
+from jirachi.io.postgres import types
 
 
 class TestPostgresQueryset(TestPostgresProcess):

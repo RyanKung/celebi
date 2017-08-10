@@ -1,6 +1,6 @@
 import unittest
 from pulsar import send, get_application, get_actor
-from celebi.io.postgres import PostgresMonitor
+from jirachi.io.postgres import PostgresMonitor
 from celebi import ComposedApp
 
 

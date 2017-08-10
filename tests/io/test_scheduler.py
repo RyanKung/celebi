@@ -1,7 +1,7 @@
 from functools import partial
 import unittest
 from pulsar import send
-from celebi.io.scheduler import SchedulerMonitor
+from jirachi.io.scheduler import SchedulerMonitor
 import asyncio
 
 monitor = SchedulerMonitor(workers=1, name='scheduler_worker')

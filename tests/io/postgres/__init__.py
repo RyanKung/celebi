@@ -4,7 +4,7 @@ from pulsar import send
 from pulsar.apps.test import dont_run_with_thread
 from pulsar import Config
 
-from celebi.io.postgres import PostgresMonitor
+from jirachi.io.postgres import PostgresMonitor
 from celebi.settings import POSTGRES_TEST
 
 
