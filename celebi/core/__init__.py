@@ -1,3 +1,5 @@
+# -*- eval: (venv-workon "celebi"); -*-
+
 from .wsgi import wsgi, success_response, error_response, response
 from .decorators import jsonrpc
 

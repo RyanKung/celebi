@@ -1,3 +1,5 @@
+# -*- eval: (venv-workon "celebi"); -*-
+
 from .postgres import PostgresMonitor
 from .scheduler import SchedulerMonitor
 from .requests import RequestMonitor

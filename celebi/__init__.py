@@ -1,3 +1,5 @@
+# -*- eval: (venv-workon "celebi"); -*-
+
 from pulsar import Config
 from pulsar.apps import MultiApp
 from pulsar.apps.wsgi.handlers import WsgiHandler

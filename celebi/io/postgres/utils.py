@@ -1,3 +1,6 @@
+# -*- eval: (venv-workon "celebi"); -*-
+
+
 def wrap_key(x: str) -> str:
     return '%s' % str(x)
 

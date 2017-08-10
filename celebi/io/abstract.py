@@ -1,3 +1,5 @@
+# -*- eval: (venv-workon "celebi"); -*-
+
 from pulsar import get_application, get_actor, send
 from pulsar.apps import Application
 

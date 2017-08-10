@@ -1,3 +1,6 @@
+# -*- eval: (venv-workon "celebi"); -*-
+
+
 from typing import NamedTuple
 from typing import NewType
 import datetime

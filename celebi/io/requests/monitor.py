@@ -1,5 +1,6 @@
-from pulsar import get_application, get_actor, send
-from pulsar.apps import Application
+# -*- eval: (venv-workon "celebi"); -*-
+
+from pulsar import send
 from pulsar.apps import http
 from celebi.io.abstract import CelebiMonitor
 

@@ -1,3 +1,5 @@
+# -*- eval: (venv-workon "celebi"); -*-
+
 from typing import Callable, Any
 import json
 from functools import wraps

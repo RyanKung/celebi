@@ -1,3 +1,5 @@
+# -*- eval: (venv-workon "celebi"); -*-
+
 from typing import Union, Callable, Generic, GenericMeta, TypeVar
 
 from types import CoroutineType

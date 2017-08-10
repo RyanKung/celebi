@@ -1,3 +1,5 @@
+# -*- eval: (venv-workon "celebi"); -*-
+
 ENV = 'DEV'
 
 POSTGRES_TEST = {

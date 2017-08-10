@@ -1,3 +1,5 @@
+# -*- eval: (venv-workon "celebi"); -*-
+
 from typing import Iterable
 import asyncpg
 from asyncpg import Record

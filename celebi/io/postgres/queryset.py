@@ -1,3 +1,5 @@
+# -*- eval: (venv-workon "celebi"); -*-
+
 from . import utils
 import time
 from .monitor import PostgresMonitor

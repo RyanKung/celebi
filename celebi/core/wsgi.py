@@ -1,3 +1,5 @@
+# -*- eval: (venv-workon "celebi"); -*-
+
 from functools import partial
 from typing import Callable
 from pwsgi.router import BluePrint

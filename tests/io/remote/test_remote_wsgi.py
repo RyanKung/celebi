@@ -1,3 +1,5 @@
+# -*- eval: (venv-workon "celebi"); -*-
+
 import unittest
 from pulsar import send, get_actor
 from celebi.io.remote import RemoteMonitorWSGI
@@ -5,6 +7,7 @@ from pulsar.apps.http import HttpClient
 
 
 class TestRemoteMonitor(unittest.TestCase):
+
     @classmethod
     async def setUpClass(cls):
         cls.monitor = RemoteMonitorWSGI(workers=5)

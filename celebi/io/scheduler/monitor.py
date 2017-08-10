@@ -1,3 +1,5 @@
+# -*- eval: (venv-workon "celebi"); -*-
+
 import time
 from functools import wraps
 from celebi.io.abstract import CelebiMonitor
