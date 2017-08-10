@@ -5,13 +5,12 @@ from pulsar.apps import MultiApp
 from pulsar.apps.wsgi.handlers import WsgiHandler
 from pulsar.apps.wsgi import WSGIServer
 from celebi.core import wsgi
-from celebi import apis
 from celebi.io import PostgresMonitor
 from celebi.io import RequestMonitor
 from celebi.io import SchedulerMonitor
 from celebi.settings import POSTGRES
 
-__all__ = ['apis', 'wsgi', 'ComposedApp', 'ComposedIO']
+__all__ = ['wsgi', 'ComposedApp', 'ComposedIO']
 
 
 class ComposedIO(MultiApp):
