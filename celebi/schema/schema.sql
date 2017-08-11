@@ -21,18 +21,3 @@ CREATE TABLE states(
        tags text default '',
        primary key (qubit, ts)
 );
-
-
-CREATE TABLE metric(
-       id serial,
-       name varchar(200),
-       tags text default '',
-       ts date default now(),
-       start timestamp,
-       end timestamp,
-       open integer,
-       close integer,
-       high integer,
-       low integer,
-       mean integer
-)
