@@ -2,20 +2,17 @@ CREATE TABLE datum(
        id serial primary key,
        name varchar(200),
        rate integer default 1,
-       monad text,
-       entangle varchar(200),
-       is_stem boolean default False,
+       generator text,
        is_spout boolean default False,
        flying boolean default True,
-       store boolean default True,
        created_at timestamp default now(),
        comment text
 );
 
-CREATE TABLE states(
+CREATE TABLE datum(
        id serial,
        ts timestamp default now(),
-       qubit integer,
+       dataset integer,
        index text default '',
        datum json default '{}',
        tags text default '',

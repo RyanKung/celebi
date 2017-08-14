@@ -1,22 +1,20 @@
 #! -*- eval: (venv-workon "celebi"); -*-
 import runpy
+import time
 from types import ModuleType
 from celebi.io.postgres import types
 from celebi.io.postgres import QuerySet
 
 
-__all__ = ['Datum']
+__all__ = ['Data', 'Datum']
 
 
-class Datum(object):
-    prototype = types.Table('qubit', [
+class Data(object):
+    prototype = types.Table('datum', [
         ('id', types.integer),
         ('name', types.varchar),
-        ('entangle', types.varchar),
-        ('is_stem', types.boolean),
         ('is_spout', types.boolean),
-        ('monad', types.text),
-        ('store', types.boolean),
+        ('generator', types.text),
         ('comment', types.text),
         ('flying', types.boolean),
         ('rate', types.integer)
@@ -24,15 +22,11 @@ class Datum(object):
     manager = QuerySet(prototype)
 
     @classmethod
-    def create(cls, name, entangle=None,
-               flying=True, is_stem=False, is_spout=False,
-               store=False, *args, **kwargs) -> int:
-        return cls.manager.insert(
+    async def create(cls, name,
+                     flying=True, is_spout=False, *args, **kwargs) -> int:
+        return await cls.manager.insert(
             name=name,
-            entangle=entangle,
-            is_stem=is_stem,
             is_spout=is_spout,
-            store=store,
             flying=flying, *args, **kwargs)
 
     @staticmethod
@@ -52,3 +46,24 @@ class Datum(object):
         if name not in whitelist:
             return NotImplementedError
         return __import__(name, *args, **kwargs)
+
+
+class Datum(object):
+    prototype = types.Table('datum', [
+        ('id', types.integer),
+        ('ts', types.timestamp),
+        ('index', types.text),
+        ('dataset', types.integer),
+        ('datum', types.json),
+        ('tags', types.text)
+    ])
+    manager = QuerySet(prototype)
+
+    @classmethod
+    async def create(cls, dataset, index, datum, tags=[], ts=time.time()):
+        return await cls.manager.insert(
+            dataset=dataset,
+            index=index,
+            datum=datum,
+            tags=','.join(tags),
+            ts=ts)
