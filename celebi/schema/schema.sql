@@ -1,4 +1,4 @@
-CREATE TABLE datum(
+CREATE TABLE ts_data(
        id serial primary key,
        name varchar(200),
        rate integer default 1,
@@ -9,7 +9,7 @@ CREATE TABLE datum(
        comment text
 );
 
-CREATE TABLE datum(
+CREATE TABLE ts_datum(
        id serial,
        ts timestamp default now(),
        dataset integer,

@@ -11,5 +11,5 @@ class TestMeta(TestCelebiThread):
         self.assertEqual(response.content,
                          b'{"result": {}, "error": null, "id": 1}')
 
-    def test_simple_test(self):
+    async def test_data(self):
         self.assertEqual(1, 1)

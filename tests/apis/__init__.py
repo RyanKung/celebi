@@ -38,6 +38,11 @@ class TestCelebiThread(unittest.TestCase):
         cls.uri = 'http://{0}:{1}'.format(*cls.app_cfg.addresses[0])
         cls.client = HttpClient()
 
+        await cls.pg_cfg.execute('DROP TABLE IF EXISTS Test;')
+        cls.assertEqual('DROP TABLE', res)
+        res = await cls.pg_cfg.execute('CREATE TABLE Test(id serial primary key, name varchar(200))')
+        cls.assertEqual('CREATE TABLE', res)
+
     @classmethod
     async def tearDownClass(cls):
         if cls.app_cfg is not None:

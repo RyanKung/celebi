@@ -10,7 +10,7 @@ __all__ = ['Data', 'Datum']
 
 
 class Data(object):
-    prototype = types.Table('datum', [
+    prototype = types.Table('ts_datum', [
         ('id', types.integer),
         ('name', types.varchar),
         ('is_spout', types.boolean),
@@ -49,7 +49,7 @@ class Data(object):
 
 
 class Datum(object):
-    prototype = types.Table('datum', [
+    prototype = types.Table('ts_datum', [
         ('id', types.integer),
         ('ts', types.timestamp),
         ('index', types.text),
