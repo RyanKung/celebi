@@ -35,8 +35,8 @@ class TestCelebiThread(unittest.TestCase):
         cls.uri = 'http://{0}:{1}'.format(*cls.app_cfg.addresses[0])
         cls.client = HttpClient()
 
-        res = await cls.pg.execute('DROP TABLE IF EXISTS Test;')
-        res = await cls.pg.execute('CREATE TABLE Test(id serial primary key, name varchar(200))')
+        await cls.pg.execute('DROP TABLE IF EXISTS Test;')
+        await cls.pg.execute('CREATE TABLE Test(id serial primary key, name varchar(200))')
 
     @classmethod
     async def tearDownClass(cls):
