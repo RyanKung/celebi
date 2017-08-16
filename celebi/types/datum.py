@@ -2,8 +2,8 @@
 import runpy
 import time
 from types import ModuleType
-from celebi.io.postgres import types
-from celebi.io.postgres import QuerySet
+from jirachi.io.postgres import types
+from jirachi.io.postgres import QuerySet
 
 
 __all__ = ['Data', 'Datum']
