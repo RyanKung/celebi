@@ -27,27 +27,22 @@ class TestCelebiThread(unittest.TestCase):
     async def setUpClass(cls):
         s = server(name=cls.name(), concurrency=cls.concurrency,
                    bind='127.0.0.1:0')
-        pg = PostgresMonitor(worker=2, cfg=Config(
+        cls.pg = PostgresMonitor(worker=2, cfg=Config(
             pgconf=POSTGRES_TEST, name='postgres_celebi'))
         cls.app_cfg = await send('arbiter', 'run', s)
-        try:
-            cls.pg_cfg = await send('arbiter', 'run', pg)
-        except ImproperlyConfigured:
-            cls.pg_cfg = get_actor().get_actor('postgres_celebi')
+        cls.pg_cfg = await send('arbiter', 'run', cls.pg)
 
         cls.uri = 'http://{0}:{1}'.format(*cls.app_cfg.addresses[0])
         cls.client = HttpClient()
 
-        await cls.pg_cfg.execute('DROP TABLE IF EXISTS Test;')
-        cls.assertEqual('DROP TABLE', res)
-        res = await cls.pg_cfg.execute('CREATE TABLE Test(id serial primary key, name varchar(200))')
-        cls.assertEqual('CREATE TABLE', res)
+        res = await cls.pg.execute('DROP TABLE IF EXISTS Test;')
+        res = await cls.pg.execute('CREATE TABLE Test(id serial primary key, name varchar(200))')
 
     @classmethod
     async def tearDownClass(cls):
         if cls.app_cfg is not None:
             await send('arbiter', 'kill_actor', cls.app_cfg.name)
-        if cls.pg_cfg is not None:
+        if cls.pg is not None:
             await send('arbiter', 'kill_actor', cls.pg_cfg.name)
 
     async def testMeta(self):
