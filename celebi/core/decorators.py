@@ -8,6 +8,8 @@ from celebi.core.wsgi import success_response, error_response
 from celebi.core.types import (MaybeCorouteine, Handler,
                                Response, Maybe)
 from asyncio import iscoroutinefunction
+import traceback
+import logging
 
 
 __all__ = ['maybe_coroutine', 'maybe_async_cps', 'jsonrpc']
@@ -40,8 +42,13 @@ def maybe_async_cps(fn: Callable) -> MaybeCorouteine:
 
 def jsonrpc(fn: Callable) -> Handler:
     def error(e: Exception) -> Response:
-        res = dict(result=None, error=e.args, id=1)
-        return error_response(json.dumps(res).encode())
+        try:
+            raise e
+        except Exception:
+            traceback.print_exc()
+        finally:
+            res = dict(result=None, error=e.args, id=1)
+            return error_response(json.dumps(res).encode())
 
     def just(r: dict) -> Response:
         res = dict(result=r, error=None, id=1)
