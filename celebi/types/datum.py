@@ -31,7 +31,7 @@ class Data(object):
 
     @classmethod
     async def fetch(cls, did) -> str:
-        return await cls.manager.filter(id=did)
+        return await cls.manager.get_by(id=did)
 
     @staticmethod
     def require(name, *args, **kwargs) -> ModuleType:

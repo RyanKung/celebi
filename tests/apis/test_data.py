@@ -16,5 +16,10 @@ class TestMeta(TestCelebiThread):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(response.content)['result']['id'], 1)
 
+        response = await c.get(url, params={'id': 1})
+        self.assertEqual(response.status_code, 200)
+        print(response.content)
+        self.assertEqual(json.loads(response.content)['result']['id'], 1)
+
     async def test_datum(self):
         self.assertEqual(1, 1)

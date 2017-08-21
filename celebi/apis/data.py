@@ -20,8 +20,16 @@ async def datum(request: WsgiRequest) -> WsgiResponse:
 @wsgi.router('/data', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @jsonrpc
 async def data(request: WsgiRequest) -> WsgiResponse:
-    data = json.loads(await request.body_data())
-    return await {
-        'POST': Data.create
 
-    }[request.method](**data)
+    async def create():
+        data = json.loads(await request.body_data())
+        return await Data.create(**data)
+
+    async def fetch():
+        data = request.url_data
+        return await Data.fetch(data['id'])
+    return await {
+        'POST': create,
+        'GET': fetch
+
+    }[request.method]()
