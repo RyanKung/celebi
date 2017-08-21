@@ -22,6 +22,6 @@ async def datum(request: WsgiRequest) -> WsgiResponse:
 async def data(request: WsgiRequest) -> WsgiResponse:
     data = json.loads(await request.body_data())
     return await {
-        'POST': Datum.create
+        'POST': Data.create
 
     }[request.method](**data)

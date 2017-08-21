@@ -1,14 +1,13 @@
 import unittest
-
 from pulsar import send, get_application, get_actor
 from pulsar.apps.http import HttpClient
 from pulsar.apps.test import dont_run_with_thread
-from pulsar.utils.exceptions import ImproperlyConfigured
 from pulsar import Config
 
 from celebi import wsgi, WSGIServer, WsgiHandler
 from celebi import PostgresMonitor
 from celebi.settings import POSTGRES_TEST
+from celebi.schema.utils import async_init_db
 
 
 def server(**kwargs):
@@ -25,6 +24,7 @@ class TestCelebiThread(unittest.TestCase):
 
     @classmethod
     async def setUpClass(cls):
+        await async_init_db(POSTGRES_TEST)
         s = server(name=cls.name(), concurrency=cls.concurrency,
                    bind='127.0.0.1:0')
         cls.pg = PostgresMonitor(worker=2, cfg=Config(
@@ -34,9 +34,6 @@ class TestCelebiThread(unittest.TestCase):
 
         cls.uri = 'http://{0}:{1}'.format(*cls.app_cfg.addresses[0])
         cls.client = HttpClient()
-
-        await cls.pg.execute('DROP TABLE IF EXISTS Test;')
-        await cls.pg.execute('CREATE TABLE Test(id serial primary key, name varchar(200))')
 
     @classmethod
     async def tearDownClass(cls):

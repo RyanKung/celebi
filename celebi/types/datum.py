@@ -10,7 +10,7 @@ __all__ = ['Data', 'Datum']
 
 
 class Data(object):
-    prototype = types.Table('ts_datum', [
+    prototype = types.Table('ts_data', [
         ('id', types.integer),
         ('name', types.varchar),
         ('is_spout', types.boolean),
@@ -23,11 +23,15 @@ class Data(object):
 
     @classmethod
     async def create(cls, name,
-                     flying=True, is_spout=False, *args, **kwargs) -> int:
+                     flying=True, is_spout=False, *args, **kwargs) -> str:
         return await cls.manager.insert(
             name=name,
             is_spout=is_spout,
             flying=flying, *args, **kwargs)
+
+    @classmethod
+    async def fetch(cls, did) -> str:
+        return await cls.manager.filter(id=did)
 
     @staticmethod
     def require(name, *args, **kwargs) -> ModuleType:

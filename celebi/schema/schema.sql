@@ -16,5 +16,6 @@ CREATE TABLE ts_datum(
        index text default '',
        datum json default '{}',
        tags text default '',
-       primary key (qubit, ts)
+       ts_data integer,
+       primary key (ts_data, ts)
 );

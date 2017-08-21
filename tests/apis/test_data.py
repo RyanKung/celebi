@@ -14,8 +14,7 @@ class TestMeta(TestCelebiThread):
                                                           flying=True,
                                                           rate=1)))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content,
-                         b'{"result": {}, "error": null, "id": 1}')
+        self.assertEqual(json.loads(response.content)['result']['id'], 1)
 
-    async def test_data(self):
+    async def test_datum(self):
         self.assertEqual(1, 1)
