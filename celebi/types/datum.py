@@ -33,6 +33,14 @@ class Data(object):
     async def fetch(cls, did) -> str:
         return await cls.manager.get_by(id=did)
 
+    @classmethod
+    async def delete(cls, did) -> str:
+        return await cls.manager.delete(did)
+
+    @classmethod
+    async def update(cls, did, data) -> str:
+        return await cls.manager.update(did, **data)
+
     @staticmethod
     def require(name, *args, **kwargs) -> ModuleType:
         if '.py' not in name:
@@ -71,3 +79,15 @@ class Datum(object):
             datum=datum,
             tags=','.join(tags),
             ts=ts)
+
+    @classmethod
+    async def fetch(cls, did) -> str:
+        return await cls.manager.get_by(id=did)
+
+    @classmethod
+    async def delete(cls, did) -> str:
+        return await cls.manager.delete(did)
+
+    @classmethod
+    async def update(cls, did, data) -> str:
+        return await cls.manager.update(did, **data)
