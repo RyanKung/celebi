@@ -1,10 +1,11 @@
 from tests.apis import TestCelebiThread
 import json
+import datetime
 
 
 class TestMeta(TestCelebiThread):
 
-    async def test_data(self):
+    async def test_data_first(self):
         c = self.client
         url = self.uri + '/data'
         response = await c.post(url, data=json.dumps(dict(name='test',
@@ -36,5 +37,25 @@ class TestMeta(TestCelebiThread):
         self.assertEqual(json.loads(response.content)
                          ['result'], [])
 
-    async def test_datum(self):
-        self.assertEqual(1, 1)
+        url = self.uri + '/data'
+        response = await c.post(url, data=json.dumps(dict(name='test',
+                                                          is_spout=False,
+                                                          generator='',
+                                                          comment='',
+                                                          flying=True,
+                                                          rate=1)))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)['result']['id'], 2)
+
+    async def test_datume_next(self):
+        # test datum
+        c = self.client
+        url = self.uri + '/datum'
+        response = await c.post(url, data=json.dumps(dict(ts=str(datetime.datetime.now()),
+                                                          dataset=2,
+                                                          index='',
+                                                          datum=json.dumps({
+                                                              'datum': 'foo'}),
+                                                          tags='none')))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)['result']['id'], 1)

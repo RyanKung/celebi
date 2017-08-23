@@ -12,10 +12,9 @@ CREATE TABLE ts_data(
 CREATE TABLE ts_datum(
        id serial,
        ts timestamp default now(),
-       dataset integer,
        index text default '',
        datum json default '{}',
        tags text default '',
-       ts_data integer,
-       primary key (ts_data, ts)
+       dataset integer,
+       primary key (dataset, ts)
 );

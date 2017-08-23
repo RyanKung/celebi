@@ -27,7 +27,7 @@ class TestCelebiThread(unittest.TestCase):
         await async_init_db(POSTGRES_TEST)
         s = server(name=cls.name(), concurrency=cls.concurrency,
                    bind='127.0.0.1:0')
-        cls.pg = PostgresMonitor(worker=2, cfg=Config(
+        cls.pg = PostgresMonitor(workers=5, cfg=Config(
             pgconf=POSTGRES_TEST, name='postgres_celebi'))
         cls.app_cfg = await send('arbiter', 'run', s)
         cls.pg_cfg = await send('arbiter', 'run', cls.pg)
