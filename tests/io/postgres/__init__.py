@@ -20,7 +20,7 @@ class TestPostgresThread(unittest.TestCase):
     async def setUpClass(cls):
         cfg = Config(pgconf=POSTGRES_TEST, name='postgres_celebi')
         cls.monitor = PostgresMonitor(
-            cfg=cfg, workers=20)
+            cfg=cfg, workers=50)
         cls.app_cfg = await send('arbiter', 'run', cls.monitor)
 
     @classmethod

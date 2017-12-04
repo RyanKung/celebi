@@ -9,7 +9,6 @@ from celebi.core.types import (MaybeCorouteine, Handler,
                                Response, Maybe)
 from asyncio import iscoroutinefunction
 import traceback
-import logging
 
 
 __all__ = ['maybe_coroutine', 'maybe_async_cps', 'jsonrpc']

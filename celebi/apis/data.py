@@ -7,14 +7,35 @@ import json
 __all__ = ['datum', 'Data']
 
 
-@wsgi.router('/datum', methods=['GET', 'POST'])
+@wsgi.router('/datum', methods=['GET', 'POST', 'PATCH', 'DELETE'])
 @jsonrpc
 async def datum(request: WsgiRequest) -> WsgiResponse:
-    data = json.loads(await request.body_data())
-    return await {
-        'POST': Datum.create
 
-    }[request.method](**data)
+    async def create():
+        data = json.loads(await request.body_data())
+        return await Datum.create(**data)
+
+    async def fetch():
+        data = request.url_data
+        return await Datum.fetch(data['id'])
+
+    async def delete():
+        data = request.url_data
+        return await Datum.delete(data['id'])
+
+    async def update():
+        data = json.loads(await request.body_data())
+        did = data['id']
+        data = data['data']
+        return await Datum.update(did, data)
+
+    return await {
+        'POST': create,
+        'GET': fetch,
+        'PATCH': update,
+        'DELETE': delete
+
+    }[request.method]()
 
 
 @wsgi.router('/data', methods=['GET', 'POST', 'PATCH', 'DELETE'])

@@ -12,7 +12,7 @@ class TestBenchmark(TestPostgresProcess):
         res = await self.monitor.execute('CREATE TABLE Test(id serial primary key, name varchar(200))')
         self.assertEqual('CREATE TABLE', res)
 
-    async def test_brenchmark(self):
+    async def test_brenchmark_next(self):
         count = 1000
         bg_time = time.time()
         res = [await self.monitor.transaction([s] * 10) for s in ["INSERT Into Test(name) VALUES ('test')"] * count]
@@ -21,7 +21,28 @@ class TestBenchmark(TestPostgresProcess):
         print('Benchmark:: Call transaction(insert x 10) %s time cost %s With Actor model Asyncpg' %
               (count, end_time - bg_time))
 
-    async def test_pure_asyncpg_brenchmark(self):
+        count = 1000
+        bg_time = time.time()
+        res = [await self.monitor.transaction([s] * 10) for s in ["INSERT Into Test(name) VALUES ('test')"] * count]
+        self.assertEqual(len(res), count)
+        end_time = time.time()
+        print('Benchmark:: Call transaction(insert x 10) %s time cost %s With Actor model Asyncpg' %
+              (count, end_time - bg_time))
+
+    async def test_pure_asyncpg_brenchmark_first(self):
+
+        count = 1000
+        bg_time = time.time()
+        res = []
+        async with asyncpg.create_pool(min_size=20, max_size=20, **POSTGRES_TEST) as pool:
+            for s in ["INSERT Into Test(name) VALUES ('test')"] * count:
+                async with pool.acquire() as con:
+                    async with con.transaction():
+                        res += [await con.execute(s) for s in [s] * 10]
+        end_time = time.time()
+        print('Benchmark:: Call transaction(insert x 10) %s time cost %s with Origin Asyncpg' %
+              (count, end_time - bg_time))
+        self.assertEqual(1, 1)
 
         count = 1000
         bg_time = time.time()

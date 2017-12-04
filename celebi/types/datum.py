@@ -4,6 +4,7 @@ import time
 from types import ModuleType
 from jirachi.io.postgres import types
 from jirachi.io.postgres import QuerySet
+from jirachi.io.scheduler import SchedulerMonitor as scheduler
 
 
 __all__ = ['Data', 'Datum']
@@ -41,6 +42,12 @@ class Data(object):
     async def update(cls, did, data) -> str:
         return await cls.manager.update(did, **data)
 
+    @scheduler.task
+    @classmethod
+    async def generate(cls):
+        targets = cls.manager.get_by(is_spout=True)
+        return [cls.exec_generator(t.generator) for t in targets]
+
     @staticmethod
     def require(name, *args, **kwargs) -> ModuleType:
         if '.py' not in name:
@@ -58,6 +65,16 @@ class Data(object):
         if name not in whitelist:
             return NotImplementedError
         return __import__(name, *args, **kwargs)
+
+    @staticmethod
+    def exec_generator(generator: str, glo={}, loc={}):
+        builtins = dict(__builtins__,
+                        require=Data.require,
+                        __import__=Data.__import__)
+        glo = glo or {
+            '__builtins__': builtins
+        }
+        exec(generator, glo, loc)
 
 
 class Datum(object):
