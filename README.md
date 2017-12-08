@@ -1,53 +1,33 @@
-## Celebi - A lightweight Data Anaylize Platform for Time Series Data
+# Celebi
+
+###  An Actor-model based reactive time-series data analysis system.
 
 
-## TL;DR
-
-`Celebi` is a lightweight services for time-series data. Which is based on `jirachi`, a actor model based IO toolsets based on pulsar.
-
-## Design
+### Project model:
 
 
-## APIs
+$Ev := \{Datum, Ev\}$
 
-* /data/<id>/
-- Method: GET POST DELETE PUT
+$(.) := property(x, y) \rightarrow y$
 
-```POS
-{
-    'mapper': <str>,
-    'name': <str>
-}
-```
+$\alpha Actor := \{entangle, process, mailbox, spout\} $
 
-* /datum/<id>/
-- Method: GET POST DELETE PUT
+$Actor.spout := spout(t, datum) \rightarrow queue\{data\} $
 
+$Actor.measure := measure (t, datum_t, Ctx_t) \rightarrow measure(t+1, datum^'_{t+1})$
 
-## Commands
+$Actor.entangle := entangle(actor) \rightarrow spout \circ measure(actor.spout)$
 
-* List all avaiable tests
+$\alpha Arbiter := \{route, list, register\}$
 
-```
-python -m tests -l --log-level DEBUG
-```
+### Technology Selecion
 
-Test labels may looks like
+`Arbiter: Flask`
 
-```
-apis.data
-apis.meta
-core.multi_app
-io.postgres.benchmark
-io.postgres.postgres
-io.postgres.queryset
-io.remote.remote_wsgi
-io.requests
-```
+`Actor Model Implementation`: `pulsar`
 
+`Message Queue`: `RabbatMQ`
 
-* Run a specially testcase
+`Time-series Data Storage`: `postgres`
 
-```
-python -m tests <testcase label> --log-level DEBUG
-```
+`Context Data Storage`: `redis`
