@@ -7,8 +7,6 @@ from pulsar.apps.wsgi import WSGIServer
 from celebi.core import wsgi
 from celebi import apis
 from jirachi.io.postgres import PostgresMonitor
-from jirachi.io import RequestMonitor
-from jirachi.io import SchedulerMonitor
 from celebi.settings import POSTGRES
 
 __all__ = ['apis', 'wsgi', 'ComposedApp', 'ComposedIO']
@@ -19,9 +17,7 @@ class ComposedIO(MultiApp):
     cfg = Config(pgconf=POSTGRES)
 
     def build(self):
-        yield self.new_app(RequestMonitor, worker=10)
         yield self.new_app(PostgresMonitor, worker=10)
-        yield self.new_app(SchedulerMonitor, worker=10)
 
 
 class ComposedApp(MultiApp):
