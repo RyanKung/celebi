@@ -1,22 +1,21 @@
 from . import utils
 import time
-from .monitor import PostgresMonitor
 
 __all__ = ['QuerySet', 'query', 'update', 'insert']
 
 key = str(time.time())
 
 
-async def query(sql):
-    return await PostgresMonitor.fetch(sql)
+async def query(conn, sql):
+    return await conn.fetch(sql)
 
 
-async def update(sql):
-    return await PostgresMonitor.fetch(sql)
+async def update(conn, sql):
+    return await conn.fetch(sql)
 
 
-async def insert(sql):
-    return await PostgresMonitor.fetchrow(sql)
+async def insert(conn, sql):
+    return await conn.fetchrow(sql)
 
 
 class QuerySet(object):
