@@ -16,11 +16,6 @@ async def fire(request, event, **kw):
 class Monitor(Application):
     def __init__(
             self,
-            # name: str,
-            # exchange: str,
-            # exchange_type: str,
-            # entanglements=[],
-            # measurements=[],
             cfg,
             *args,
             **kwargs
