@@ -1,7 +1,7 @@
 #! -*- eval: (venv-workon "celebi"); -*-
 import time
-from jirachi.io.postgres import types
-from jirachi.io.postgres import QuerySet
+from celebi.io.postgres import types
+from celebi.io.postgres import QuerySet
 
 
 __all__ = ['Data', 'Datum']
