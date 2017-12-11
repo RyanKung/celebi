@@ -1,20 +1,16 @@
-# -*- eval: (venv-workon "celebi"); -*-
-
 from pulsar.apps import MultiApp
-from pulsar.apps.wsgi.handlers import WsgiHandler
-from pulsar.apps.wsgi import WSGIServer
-from celebi.core import wsgi
-from celebi import apis
-from celebi.types.abstract import (
-    Measurement,
-    Entanglement,
-    Monitor
-)
+from .measure import Measurement
+from .entangle import Entanglement
+from .monitor import Monitor
 
-__all__ = ['apis', 'wsgi', 'ComposedApp', 'ComposedIO']
+__all__ = [
+    'Measurement',
+    'Entanglement',
+    'Monitor'
+]
 
 
-class ComposedIO(MultiApp):
+class ComposedAppTest(MultiApp):
     name = 'arbiters'
 
     def build(self):
@@ -25,7 +21,17 @@ class ComposedIO(MultiApp):
             exchange='test',
             measurements=[Measurement()],
             entanglements=[Entanglement('test')],
-            worker=10
+            worker=3
+        )
+
+        yield self.new_app(
+            App=Monitor,
+            name='pikachu_monitor',
+            exchange_type='fanout',
+            exchange='test',
+            measurements=[Measurement()],
+            entanglements=[Entanglement('test')],
+            worker=3
         )
 
 
@@ -33,5 +39,13 @@ class ComposedApp(MultiApp):
     name = 'celebi'
 
     def build(self):
-        yield self.new_app(WSGIServer, callable=WsgiHandler((wsgi, )), bind="127.0.0.1:8964")
-        yield self.new_app(ComposedIO, worker=10)
+        yield self.new_app(
+            App=Monitor,
+            name='pikachu_monitor',
+            exchange_type='fanout',
+            exchange='test',
+            measurements=[Measurement()],
+            entanglements=[Entanglement('test')],
+            worker=3
+        )
+        yield self.new_app(ComposedAppTest)
