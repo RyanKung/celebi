@@ -1,11 +1,10 @@
-from collections.abc import ABCMeta
 import asyncio
 import pika
 from pulsar import send
 from pulsar.async.consts import ACTOR_STATES
 
 
-class Entanglement(metaclass=ABCMeta):
+class Entanglement():
     name = 'test_entangle'
     rate = 1
 

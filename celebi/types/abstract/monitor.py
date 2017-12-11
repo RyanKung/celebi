@@ -1,4 +1,3 @@
-from collections.abc import ABCMeta, abstractmethod
 import pika
 import json
 from pulsar.apps import Application
@@ -14,25 +13,28 @@ async def fire(request, event, **kw):
         request.actor.fire_event(event, **kw)
 
 
-class Monitor(Application, metaclass=ABCMeta):
+class Monitor(Application):
     def __init__(
             self,
-            name: str,
-            exchange: str,
-            exchange_type: str,
+            # name: str,
+            # exchange: str,
+            # exchange_type: str,
+            # entanglements=[],
+            # measurements=[],
+            cfg,
             *args,
             **kwargs
     ):
-        self.name = name
-        self.exchange: str = exchange
-        self.exchange_type: str = exchange_type
-        super().__init__(*args, **kwargs)
-        self._measurements = []
-        self._measuring = []
-        self._entanglements = []
-        self._entangleing = []
 
-    @abstractmethod
+        self.name = cfg.name
+        self.exchange: str = cfg.exchange
+        self.exchange_type: str = cfg.exchange_type
+        self._measurements = cfg.measurements
+        self._measuring = []
+        self._entanglements = cfg.entanglements
+        self._entangleing = []
+        super().__init__(cfg=cfg, *args, **kwargs)
+
     def spout(
             self,
             monitor,

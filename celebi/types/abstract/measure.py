@@ -1,15 +1,13 @@
-from collections.abc import ABCMeta, abstractmethod
 from pulsar.async.consts import ACTOR_STATES
 from pulsar import send
 import asyncio
 
 
-class Measurement(metaclass=ABCMeta):
+class Measurement():
 
     name = 'test_measure'
     rate = 1
 
-    @abstractmethod
     async def fetch(self):
         return {
             'hello': 'world'
