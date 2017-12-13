@@ -3,10 +3,10 @@
 ENV = 'DEV'
 
 POSTGRES_TEST = {
-    'user': 'ryan',
-    'password': 'pi3.1415926',
-    'database': 'celebi',
-    'host': '127.0.0.1'
+    'user': 'postgres',
+    'password': '',
+    'host': 'localhost',
+    'port': 32770
 }
 
 
