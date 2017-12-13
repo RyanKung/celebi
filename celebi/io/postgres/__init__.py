@@ -2,7 +2,7 @@ from celebi.settings import POSTGRES
 from .postgres import Postgres
 from .queryset import QuerySet
 
-__all__ = = [
+__all__ = [
     'QuerySet',
     'Postgres',
     'database'
