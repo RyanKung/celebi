@@ -1,9 +1,10 @@
 import asyncpg
+from asyncio import ensure_future
 
 
 class Postgres:
-    async def __init__(self, config: dict):
-        self.conn = await asyncpg.connect(**config)
+    def __init__(self, config: dict):
+        self.conn = ensure_future(asyncpg.connect(**config))
 
     async def query(self, sql):
         return await self.conn.fetch(sql)

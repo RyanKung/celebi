@@ -1,6 +1,6 @@
 # -*- eval: (venv-workon "celebi"); -*-
 
-ENV = 'DEV'
+ENV = 'TEST'
 
 POSTGRES_TEST = {
     'user': 'postgres',
@@ -21,4 +21,4 @@ POSTGRES_DEV = {
 POSTGRES = {
     'TEST': POSTGRES_TEST,
     'DEV': POSTGRES_DEV
-}.get('ENV', POSTGRES_DEV)
+}.get('ENV', POSTGRES_TEST)
