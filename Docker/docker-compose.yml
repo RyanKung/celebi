@@ -6,3 +6,7 @@ services:
       dockerfile: ./Docker/Dockerfile
     ports:
      - "18964:8964"
+  postgres:
+    image: postgres:latest
+  grafana:
+    image: grafana:latest
