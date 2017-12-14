@@ -5,8 +5,8 @@ ENV = 'TEST'
 POSTGRES_TEST = {
     'user': 'postgres',
     'password': '',
-    'host': '127.0.0.1',
-    'port': 32770
+    'host': 'postgres',
+    'port': 5432
 }
 
 
@@ -22,3 +22,5 @@ POSTGRES = {
     'TEST': POSTGRES_TEST,
     'DEV': POSTGRES_DEV
 }.get('ENV', POSTGRES_TEST)
+
+RABBITMQ = "amqp://guest:guest@rabbitmq:5672/%2F"

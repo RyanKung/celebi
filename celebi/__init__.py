@@ -3,7 +3,7 @@
 from pulsar.apps import MultiApp
 from pulsar.apps.wsgi.handlers import WsgiHandler
 from pulsar.apps.wsgi import WSGIServer
-from celebi.settings import POSTGRES
+from celebi.settings import POSTGRES, RABBITMQ
 from celebi.core import wsgi
 from celebi.io.postgres import PostgresMonitor
 from celebi import apis
@@ -27,6 +27,7 @@ class ComposedIO(MultiApp):
             exchange='test',
             measurements=[Measurement()],
             entanglements=[Entanglement('test')],
+            amqp_cfg=RABBITMQ,
             workers=10
         )
         yield self.new_app(

@@ -49,7 +49,7 @@ class Monitor(Application):
         return
 
     def connect_channel(self):
-        self.connection = pika.BlockingConnection()
+        self.connection = pika.BlockingConnection(self.cfg.amqp_cfg)
         self.channel = self.connection.channel()
         self.channel.exchange_declare(
             exchange=self.exchange,
