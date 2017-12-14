@@ -3,7 +3,9 @@
 from pulsar.apps import MultiApp
 from pulsar.apps.wsgi.handlers import WsgiHandler
 from pulsar.apps.wsgi import WSGIServer
+from celebi.settings import POSTGRES
 from celebi.core import wsgi
+from celebi.io.postgres import PostgresMonitor
 from celebi import apis
 from celebi.types.abstract import (
     Measurement,
@@ -25,7 +27,12 @@ class ComposedIO(MultiApp):
             exchange='test',
             measurements=[Measurement()],
             entanglements=[Entanglement('test')],
-            worker=10
+            workers=10
+        )
+        yield self.new_app(
+            App=PostgresMonitor,
+            workers=10,
+            pgconfigs=POSTGRES
         )
 
 
@@ -34,4 +41,4 @@ class ComposedApp(MultiApp):
 
     def build(self):
         yield self.new_app(WSGIServer, callable=WsgiHandler((wsgi, )), bind="127.0.0.1:8964")
-        yield self.new_app(ComposedIO, worker=10)
+        yield self.new_app(ComposedIO)

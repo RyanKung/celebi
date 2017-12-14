@@ -1,13 +1,7 @@
-from celebi.settings import POSTGRES
-from .postgres import Postgres
+from .postgres import PostgresMonitor
 from .queryset import QuerySet
 
 __all__ = [
     'QuerySet',
-    'Postgres',
-    'database'
+    'PostgresMonitor'
 ]
-
-
-database = Postgres(POSTGRES)
-QuerySet.bind(database)
