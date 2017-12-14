@@ -9,4 +9,4 @@ services:
   postgres:
     image: postgres:latest
   grafana:
-    image: grafana:latest
+    image: grafana/grafana
