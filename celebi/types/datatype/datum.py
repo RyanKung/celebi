@@ -16,12 +16,8 @@ class Data(object):
     manager = QuerySet(prototype)
 
     @classmethod
-    async def create(cls, name,
-                     flying=True, is_spout=False, *args, **kwargs) -> str:
-        return await cls.manager.insert(
-            name=name,
-            is_spout=is_spout,
-            flying=flying, *args, **kwargs)
+    async def create(cls, *args, **kwargs) -> str:
+        return await cls.manager.insert(*args, **kwargs)
 
     @classmethod
     async def fetch(cls, did) -> str:

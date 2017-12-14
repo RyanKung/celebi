@@ -1,3 +1,4 @@
+from .postgres import PostgresMonitor
 from . import utils
 import time
 
@@ -39,10 +40,7 @@ class QuerySet(object):
         self.table = table
         self.fields = table._fields
         self.tablename = table.__name__
-
-    @classmethod
-    def bind(cls, db):
-        cls.db = db
+        self.db = PostgresMonitor
 
     def format(self, data):
         if not isinstance(data, dict):

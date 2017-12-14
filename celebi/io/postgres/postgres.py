@@ -1,60 +1,88 @@
 import asyncpg
 from pulsar.apps import Application
-from pulsar import send, get_actor
-from asyncio import ensure_future
+from pulsar import send, get_actor, get_application
 
 
 class PostgresMonitor(Application):
     name = "postgres_arbiter"
 
-    async def _connect(self, *args, **kwargs):
-        self.conn = await asyncpg.connect(**self.cfg.pgconfigs)
+    async def _connect(self):
+        return await asyncpg.connect(**self.cfg.pgconfigs)
 
-    async def _execute(self, sql) -> str:
-        return await self.conn.execute(sql)
+    @staticmethod
+    async def _execute(actor, sql) -> str:
+        return str(
+            await actor.conn.execute(sql)
+        )
 
-    async def _fetchrow(self, sql) -> dict:
-        return await self.conn.fetchrow(sql)
+    @staticmethod
+    async def _fetchrow(actor, sql) -> dict:
+        return dict(
+            await actor.conn.fetchrow(sql)
+        )
 
-    async def _fetch(self, sql) -> dict:
-        return await self.conn.fetch(sql)
+    @staticmethod
+    async def _fetch(actor, sql) -> dict:
+        return list(
+            map(dict, await actor.conn.fetch(sql))
+        )
 
-    async def _transaction(self, sqls: list):
-        async with self.conn.transaction():
+    @staticmethod
+    async def _transaction(actor, sqls: list):
+        async with actor.conn.transaction():
             return [
-                await self.conn.execute(sql)
+                await actor.conn.execute(sql)
                 for sql in sqls
             ]
 
+    async def monitor_start(self, monitor, exc=None):
+        monitor.conn = await self._connect()
+
     async def worker_start(self, worker, exc=None):
-        await self._connect()
+        worker.conn = await self._connect()
 
     @classmethod
     async def query(cls, sql):
-        arbiter = get_actor().get_actor(cls.cfg.name)
-        actor = await arbiter.spawn()
-        return await send(actor, 'run', cls._fetch, sql)
+        arbiter = get_actor().get_actor(cls.name)
+        app = await get_application(cls.name)
+        actor = await arbiter.spawn(
+            start=app.worker_start
+        )
+        return await send(actor, 'run', app._fetch, sql)
 
     @classmethod
     async def update(cls, sql):
-        arbiter = get_actor().get_actor(cls.cfg.name)
-        actor = await arbiter.spawn()
-        return await send(actor, 'run', cls._fetch, sql)
+        arbiter = get_actor().get_actor(cls.name)
+        app = await get_application(cls.name)
+        actor = await arbiter.spawn(
+            start=app.worker_start
+        )
+        return await send(actor, 'run', app._fetch, sql)
 
     @classmethod
     async def insert(cls, sql):
-        arbiter = get_actor().get_actor(cls.cfg.name)
-        actor = await arbiter.spawn()
-        return await send(actor, 'run', cls._fetchrow, sql)
+        arbiter = get_actor().get_actor(cls.name)
+        app = await get_application(cls.name)
+        actor = await arbiter.spawn(
+            start=app.worker_start
+        )
+        return await send(actor, 'run', app._fetchrow, sql)
 
     @classmethod
     async def execute(cls, sql: str) -> str:
-        arbiter = get_actor().get_actor(cls.cfg.name)
-        actor = await arbiter.spawn()
-        return await send(actor, 'run', cls._execute, sql)
+
+        arbiter = get_actor().get_actor(cls.name)
+        app = await get_application(cls.name)
+        actor = await arbiter.spawn(
+            start=app.worker_start
+        )
+        return await send(actor, 'run', app._execute, sql)
 
     @classmethod
     async def transaction(cls, sqls: list) -> str:
-        arbiter = get_actor().get_actor(cls.cfg.name)
-        actor = await arbiter.spawn()
-        return await send(actor, 'run', cls._execute, sqls)
+        arbiter = get_actor().get_actor(cls.name)
+        app = await get_application(cls.name)
+        actor = await arbiter.spawn(
+            start=app.worker_start
+        )
+        return await send(actor, 'run', app._execute, sqls)
