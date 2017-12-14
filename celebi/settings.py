@@ -5,7 +5,7 @@ ENV = 'TEST'
 POSTGRES_TEST = {
     'user': 'postgres',
     'password': '',
-    'host': 'localhost',
+    'host': '127.0.0.1',
     'port': 32770
 }
 

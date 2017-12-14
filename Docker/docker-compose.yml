@@ -1,0 +1,8 @@
+version: '3.3'
+services:
+  celebi:
+    build:
+      context: ../
+      dockerfile: ./Docker/Dockerfile
+    ports:
+     - "18964:8964"
