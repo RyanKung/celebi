@@ -7,10 +7,10 @@ from celebi.settings import POSTGRES, RABBITMQ
 from celebi.core import wsgi
 from celebi.io.postgres import PostgresMonitor
 from celebi import apis
-from celebi.types.abstract import (
+from celebi.io.qubit import (
     Measurement,
     Entanglement,
-    Monitor
+    QubitMonitor
 )
 
 __all__ = ['apis', 'wsgi', 'ComposedApp', 'ComposedIO']
@@ -21,7 +21,7 @@ class ComposedIO(MultiApp):
 
     def build(self):
         yield self.new_app(
-            App=Monitor,
+            App=QubitMonitor,
             name='pikachu_monitor',
             exchange_type='fanout',
             exchange='test',

@@ -17,8 +17,10 @@ def retry(fn, times=3):
             await asyncio.sleep(t * 5)
             try:
                 return await fn(*args, **kwargs)
-            except:
-                traceback.print_exc()
-                continue
-            print('Retry %s times, waiting %s seconds' % (t, t * t))
+            except Exception as e:
+                if t + 1 != times:
+                    traceback.print_exc()
+                    continue
+                raise(e)
+            print('Retry %snd time, Waiting %s seconds' % (t + 1, (t + 1) * 5))
     return _

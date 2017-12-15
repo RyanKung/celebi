@@ -1,9 +1,9 @@
 from .measure import Measurement
 from .entangle import Entanglement
-from .monitor import Monitor
+from .monitor import QubitMonitor
 
 __all__ = [
     'Measurement',
     'Entanglement',
-    'Monitor'
+    'QubitMonitor'
 ]

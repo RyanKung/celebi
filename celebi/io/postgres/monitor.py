@@ -2,6 +2,8 @@ import asyncpg
 from pulsar.apps import Application
 from pulsar import send, get_actor, get_application
 
+__all__ = ['PostgresMonitor']
+
 
 class PostgresMonitor(Application):
     name = "postgres_arbiter"

@@ -1,4 +1,4 @@
-from .postgres import PostgresMonitor
+from .monitor import PostgresMonitor
 from .queryset import QuerySet
 
 __all__ = [

@@ -8,6 +8,8 @@ from pulsar import command
 from pulsar.async.consts import ACTOR_STATES
 from celebi.utils import retry
 
+__all__ = ['QubitMonitor']
+
 
 @command(ack=False)
 async def fire(request, event, **kw):
@@ -15,7 +17,7 @@ async def fire(request, event, **kw):
         request.actor.fire_event(event, **kw)
 
 
-class Monitor(Application):
+class QubitMonitor(Application):
     def __init__(
             self,
             # name: str,
