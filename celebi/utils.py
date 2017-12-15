@@ -24,3 +24,9 @@ def retry(fn, times=3):
                 raise(e)
             print('Retry %snd time, Waiting %s seconds' % (t + 1, (t + 1) * 5))
     return _
+
+
+def ensure(fn):
+    def _(*args, **kwargs):
+        return asyncio.ensure_future(fn(*args, **kwargs))
+    return _

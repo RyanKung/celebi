@@ -29,10 +29,11 @@ class Measurement():
 
     async def measure(self, actor, exc=None):
         async for datum in self:
-            if actor.state is not ACTOR_STATES.STOPPING:
-                await send(
-                    actor.monitor,
-                    'fire',
-                    'spout',
-                    data=datum
-                )
+            if actor.state is ACTOR_STATES.STOPPING:
+                return
+            await send(
+                actor.monitor,
+                'fire',
+                'spout',
+                data=datum
+            )

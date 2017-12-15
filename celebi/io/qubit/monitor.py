@@ -6,7 +6,7 @@ from .entangle import Entanglement
 from .measure import Measurement
 from pulsar import command
 from pulsar.async.consts import ACTOR_STATES
-from celebi.utils import retry
+from celebi.utils import retry, ensure
 
 __all__ = ['QubitMonitor']
 
@@ -24,7 +24,6 @@ class QubitMonitor(Application):
             *args,
             **kwargs
     ):
-
         self.name = cfg.name
         self.exchange: str = cfg.exchange
         self.exchange_type: str = cfg.exchange_type
@@ -34,16 +33,20 @@ class QubitMonitor(Application):
         self._entangleing = []
         super().__init__(cfg=cfg, *args, **kwargs)
 
-    def spout(
+    @ensure
+    async def spout(
             self,
             monitor,
             data,
             **kwargs
     ):
+        if type(data) is not str:
+            data = json.dumps(data)
+
         assert self.channel.basic_publish(
             exchange=self.exchange,
             routing_key='',
-            body=json.dumps(data)
+            body=data
         )
         return
 
