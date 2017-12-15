@@ -19,3 +19,6 @@ Handler = Callable[..., WsgiResponse]
 
 MaybeType = Generic[TypeVar("Just"), TypeVar("Error")]
 Maybe: GenericMeta = type("Maybe", (MaybeType, ), {})
+
+AsyncCallable = Callable[..., CoroutineType]
+MaybeAsyncCallable = Union[AsyncCallable, Callable]

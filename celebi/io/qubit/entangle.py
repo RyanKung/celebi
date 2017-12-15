@@ -7,16 +7,19 @@ from celebi.utils import retry
 
 
 class Entanglement():
-    name = 'test_entangle'
-    rate = 1
 
     def __init__(
             self,
+            name: str,
+            rate: int,
             exchange: str,
             amqp_url,
-            * args,
+            mapper=lambda x: x,
+            *args,
             **kwargs
     ):
+        self.name = name
+        self.rate = rate
         self.exchange = exchange
         self.amqp_url = amqp_url
 

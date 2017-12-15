@@ -1,31 +1,38 @@
 from pulsar.async.consts import ACTOR_STATES
 from pulsar import send
 import asyncio
+from celebi.core.types import MaybeAsyncCallable
+from asyncio import iscoroutinefunction
 
 
 class Measurement():
 
-    name = 'test_measure'
-    rate = 1
+    def __init__(
+            self,
+            name,
+            spout: MaybeAsyncCallable,
+            rate: int
+    ):
+        self.name = name
+        self.spout = spout
+        self.rate = rate
 
-    async def fetch(self):
-        return {
-            'hello': 'world'
-        }
+    def __aiter__(self):
+        return self
 
-    async def mapper(self, datum: dict):
-        datum.update({'world': 'hello'})
-        return datum
+    async def __anext__(self):
+        await asyncio.sleep(self.rate)
+        if iscoroutinefunction(self.spout):
+            return await self.spout()
+        else:
+            return self.spout()
 
     async def measure(self, actor, exc=None):
-        while actor.state is not ACTOR_STATES.STOPPING:
-            await asyncio.sleep(self.rate)
-            datum = await self.mapper(
-                await self.fetch()
-            )
-            await send(
-                actor.monitor,
-                'fire',
-                'spout',
-                data=datum
-            )
+        async for datum in self:
+            if actor.state is not ACTOR_STATES.STOPPING:
+                await send(
+                    actor.monitor,
+                    'fire',
+                    'spout',
+                    data=datum
+                )
