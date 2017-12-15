@@ -1,4 +1,5 @@
 import pika
+from asyncio import iscoroutinefunction
 from pika.connection import URLParameters
 import json
 from pulsar.apps import Application
@@ -31,6 +32,7 @@ class QubitMonitor(Application):
         self._measuring = []
         self._entanglements = cfg.entanglements
         self._entangleing = []
+        self._processor = cfg.processor
         super().__init__(cfg=cfg, *args, **kwargs)
 
     @ensure
@@ -40,13 +42,17 @@ class QubitMonitor(Application):
             data,
             **kwargs
     ):
-        if type(data) is not str:
-            data = json.dumps(data)
+        if type(data) is str:
+            data = json.loads(data)
 
+        if iscoroutinefunction(self._processor):
+            data = await self._processor(data)
+        else:
+            data = self._processor(data)
         assert self.channel.basic_publish(
             exchange=self.exchange,
             routing_key='',
-            body=data
+            body=json.dumps(data)
         )
         return
 

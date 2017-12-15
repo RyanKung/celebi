@@ -26,6 +26,7 @@ class ComposedIO(MultiApp):
             name='pikachu_monitor',
             exchange_type='fanout',
             exchange='test',
+            processor=dict,
             measurements=[Measurement(
                 name='test',
                 spout=partial(dict, hello='world'),
