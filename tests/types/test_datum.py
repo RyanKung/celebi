@@ -15,6 +15,9 @@ class TestDaum(unittest.TestCase):
         res = await Data.create(name='test', comment='test comment')
         data = await Data.fetch(res['id'])
         assert data['comment'] == 'test comment'
+        await Data.delete(res['id'])
+        data = await Data.fetch(res['id'])
+        assert not bool(data)
 
     def test_datum_crud(self):
         pass

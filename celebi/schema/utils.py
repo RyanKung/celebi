@@ -1,5 +1,5 @@
 from pulsar import get_event_loop
-from celebi.settings import POSTGRES_TEST
+from celebi.settings import POSTGRES
 import asyncpg
 
 
@@ -9,7 +9,7 @@ def split_file(filename: str) -> list:
         return [q for q in data.split(';') if q]
 
 
-async def async_init_db(config=POSTGRES_TEST):
+async def async_init_db(config=POSTGRES):
     drop_sqls = split_file('celebi/schema/drop.sql')
 
     create_sqls = split_file('celebi/schema/schema.sql')
@@ -19,6 +19,6 @@ async def async_init_db(config=POSTGRES_TEST):
     return res
 
 
-def init_db(config=POSTGRES_TEST):
+def init_db(config=POSTGRES):
     loop = get_event_loop()
     return loop.run_until_complete(async_init_db(config))
