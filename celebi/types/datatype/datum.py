@@ -1,5 +1,6 @@
 #! -*- eval: (venv-workon "celebi"); -*-
 import time
+import json
 from celebi.io.postgres import types
 from celebi.io.postgres import QuerySet
 
@@ -36,7 +37,6 @@ class Datum(object):
     prototype = types.Table('ts_datum', [
         ('id', types.integer),
         ('ts', types.timestamp),
-        ('index', types.text),
         ('dataset', types.integer),
         ('datum', types.json),
         ('tags', types.text)
@@ -44,13 +44,13 @@ class Datum(object):
     manager = QuerySet(prototype)
 
     @classmethod
-    async def create(cls, dataset, index, datum, tags=[], ts=time.time()):
+    async def create(cls, dataset, datum, tags=[], ts=time.time()):
         return await cls.manager.insert(
             dataset=dataset,
-            index=index,
-            datum=datum,
+            datum=json.dumps(datum),
             tags=','.join(tags),
-            ts=ts)
+            ts=ts
+        )
 
     @classmethod
     async def fetch(cls, did) -> str:

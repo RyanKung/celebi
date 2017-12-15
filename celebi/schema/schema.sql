@@ -8,7 +8,6 @@ CREATE TABLE ts_data(
 CREATE TABLE ts_datum(
        id serial,
        ts timestamp default now(),
-       index text default '',
        datum json default '{}',
        tags text default '',
        dataset integer,
