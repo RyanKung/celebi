@@ -12,10 +12,10 @@ POSTGRES_TEST = {
 
 
 POSTGRES_DEV = {
-    'user': 'ryan',
-    'password': 'pi3.1415926',
-    'database': 'celebi',
-    'host': '127.0.0.1'
+    'user': 'postgres',
+    'password': '',
+    'host': '127.0.0.1',
+    'port': 32770
 }
 
 POSTGRES = {
@@ -24,7 +24,7 @@ POSTGRES = {
 }.get(ENV, POSTGRES_TEST)
 
 RABBITMQ_TEST = "amqp://guest:guest@rabbitmq:5672/%2F"
-RABBITMQ_DEV = "amqp://guest:guest@localhost:5672/%2F"
+RABBITMQ_DEV = "amqp://guest:guest@localhost:32773/%2F"
 RABBITMQ = {
     'TEST': RABBITMQ_TEST,
     'DEV': RABBITMQ_DEV

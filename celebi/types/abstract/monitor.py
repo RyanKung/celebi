@@ -1,4 +1,5 @@
 import pika
+from pika.connection import URLParameters
 import json
 from pulsar.apps import Application
 from .entangle import Entanglement
@@ -51,7 +52,8 @@ class Monitor(Application):
 
     @retry
     async def connect_channel(self):
-        self.connection = pika.BlockingConnection(self.cfg.amqp_cfg)
+        url = URLParameters(self.cfg.amqp_cfg)
+        self.connection = pika.BlockingConnection(url)
         self.channel = self.connection.channel()
         self.channel.exchange_declare(
             exchange=self.exchange,

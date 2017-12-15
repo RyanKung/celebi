@@ -1,7 +1,9 @@
 import asyncio
 import pika
+from pika.connection import URLParameters
 from pulsar import send
 from pulsar.async.consts import ACTOR_STATES
+from celebi.utils import retry
 
 
 class Entanglement():
@@ -11,16 +13,20 @@ class Entanglement():
     def __init__(
             self,
             exchange: str,
-            *args,
+            amqp_url,
+            * args,
             **kwargs
     ):
         self.exchange = exchange
+        self.amqp_url = amqp_url
 
     async def mapper(self, datum):
         return datum
 
+    @retry
     async def connect(self):
-        self.connection = pika.BlockingConnection()
+        url = URLParameters(self.amqp_url)
+        self.connection = pika.BlockingConnection(url)
         self.channel = self.connection.channel()
         self.queue = self.channel.queue_declare(exclusive=True).method.queue
 

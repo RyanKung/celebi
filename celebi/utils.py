@@ -1,6 +1,7 @@
 import asyncio
 from typing import Any
 from collections import defaultdict
+import traceback
 
 __all__ = ['configdict']
 
@@ -13,11 +14,11 @@ def configdict(cases: dict, other: Any) -> defaultdict:
 def retry(fn, times=3):
     async def _(*args, **kwargs):
         for t in range(0, times):
-            asyncio.sleep(t * 5)
+            await asyncio.sleep(t * 5)
             try:
-                res = await fn(*args, **kwargs)
+                return await fn(*args, **kwargs)
             except:
+                traceback.print_exc()
                 continue
-            if res:
-                return res
+            print('Retry %s times, waiting %s seconds' % (t, t * t))
     return _

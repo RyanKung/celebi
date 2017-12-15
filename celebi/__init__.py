@@ -26,7 +26,7 @@ class ComposedIO(MultiApp):
             exchange_type='fanout',
             exchange='test',
             measurements=[Measurement()],
-            entanglements=[Entanglement('test')],
+            entanglements=[Entanglement('test', amqp_url=RABBITMQ)],
             amqp_cfg=RABBITMQ,
             workers=10
         )
