@@ -1,6 +1,7 @@
 # -*- eval: (venv-workon "celebi"); -*-
+import os
 
-ENV = 'TEST'
+ENV = os.getenv('ENV') or 'TEST'
 
 POSTGRES_TEST = {
     'user': 'postgres',
@@ -17,10 +18,14 @@ POSTGRES_DEV = {
     'host': '127.0.0.1'
 }
 
-
 POSTGRES = {
     'TEST': POSTGRES_TEST,
     'DEV': POSTGRES_DEV
-}.get('ENV', POSTGRES_TEST)
+}.get(ENV, POSTGRES_TEST)
 
-RABBITMQ = "amqp://guest:guest@rabbitmq:5672/%2F"
+RABBITMQ_TEST = "amqp://guest:guest@rabbitmq:5672/%2F"
+RABBITMQ_DEV = "amqp://guest:guest@localhost:5672/%2F"
+RABBITMQ = {
+    'TEST': RABBITMQ_TEST,
+    'DEV': RABBITMQ_DEV
+}.get(ENV, RABBITMQ_TEST)

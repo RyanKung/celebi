@@ -12,6 +12,9 @@ services:
       dockerfile: "./Docker/Dockerfile"
     ports:
      - "18964:8964"
+    depends_on:
+      - "postgres"
+      - "rabbitmq"
     links:
       - postgres
       - grafana

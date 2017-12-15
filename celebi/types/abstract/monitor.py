@@ -5,6 +5,7 @@ from .entangle import Entanglement
 from .measure import Measurement
 from pulsar import command
 from pulsar.async.consts import ACTOR_STATES
+from celebi.utils import retry
 
 
 @command(ack=False)
@@ -48,7 +49,8 @@ class Monitor(Application):
         )
         return
 
-    def connect_channel(self):
+    @retry
+    async def connect_channel(self):
         self.connection = pika.BlockingConnection(self.cfg.amqp_cfg)
         self.channel = self.connection.channel()
         self.channel.exchange_declare(
@@ -58,7 +60,7 @@ class Monitor(Application):
 
     async def monitor_start(self, monitor, exc=None):
         monitor.bind_event('spout', self.spout)
-        self.connect_channel()
+        await self.connect_channel()
         self._measuring: list = [
             self.spawn_measuring_actor(monitor, m)
             for m in self._measurements
