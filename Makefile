@@ -7,3 +7,6 @@ up:
 rebuild:
 	cd Docker; docker-compose up --build
 
+
+upload:
+	python setup.py sdist --formats=gztar register upload
