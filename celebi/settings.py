@@ -4,9 +4,9 @@ import os
 ENV = os.getenv('ENV') or 'TEST'
 
 POSTGRES_TEST = {
-    'user': 'postgres',
+    'user': 'ryan',
     'password': '',
-    'host': 'postgres',
+    'host': 'localhost',
     'port': 5432
 }
 
@@ -23,7 +23,7 @@ POSTGRES = {
     'DEV': POSTGRES_DEV
 }.get(ENV, POSTGRES_TEST)
 
-RABBITMQ_TEST = "amqp://guest:guest@rabbitmq:5672/%2F"
+RABBITMQ_TEST = "amqp://guest:guest@localhost:5672/%2F"
 RABBITMQ_DEV = "amqp://guest:guest@localhost:32773/%2F"
 RABBITMQ = {
     'TEST': RABBITMQ_TEST,
