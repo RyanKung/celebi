@@ -55,4 +55,4 @@ class ComposedApp(MultiApp):
 
     def build(self):
         yield self.new_app(WSGIServer, callable=WsgiHandler((wsgi, )), bind="127.0.0.1:8964")
-        yield self.new_app(ComposedIO)
+#        yield self.new_app(ComposedIO)
